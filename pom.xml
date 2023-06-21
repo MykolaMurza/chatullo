@@ -40,7 +40,6 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>E:\server\plugins\chatullo.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
