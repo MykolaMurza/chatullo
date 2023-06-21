@@ -1,0 +1,4 @@
+name: chatullo
+version: '${project.version}'
+main: ua.mykolamurza.chatullo.Chatullo
+api-version: '1.20'
