@@ -1,5 +1,4 @@
-# Chatullo - A Minecraft local and global chat system
-Pay with item to write to the global chat.
+# Chatullo - A Minecraft Local and Global Chat Plugin
 
 ## Overview
 
