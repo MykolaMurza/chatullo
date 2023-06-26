@@ -6,7 +6,7 @@
 
     <groupId>ua.mykolamurza</groupId>
     <artifactId>chatullo</artifactId>
-    <version>1.20.1-R0.1</version>
+    <version>1.20.1-R0.2</version>
     <packaging>jar</packaging>
 
     <name>chatullo</name>

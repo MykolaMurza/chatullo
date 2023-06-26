@@ -47,7 +47,8 @@ public class ChatHandler implements Listener {
         } else {
             // Local chat
             event.getRecipients().removeIf(p ->
-                    p.getLocation().distance(player.getLocation()) > getLocalChatDistance());
+                    !p.getWorld().equals(player.getWorld()) ||
+                            p.getLocation().distance(player.getLocation()) > getLocalChatDistance());
             event.getRecipients().forEach(recipient -> recipient.sendMessage(Component.text()
                     .append(Component.text("[L] ", NamedTextColor.GREEN, TextDecoration.BOLD))
                     .append(Component.text(player.getName(), NamedTextColor.YELLOW))

@@ -16,5 +16,4 @@ public class JoinQuitMessageConfig {
     public static String getQuit() {
         return quit;
     }
-
 }
