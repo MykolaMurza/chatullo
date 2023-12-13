@@ -1,15 +1,15 @@
 package ua.mykolamurza.chatullo.handler;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -23,42 +23,56 @@ import static ua.mykolamurza.chatullo.config.LocalizationConfig.getBundledText;
  */
 public class ChatHandler implements Listener {
     @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
+    public void onPlayerChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        String message = event.getMessage();
+        TextComponent message = (TextComponent) event.message();
 
-        if (message.startsWith("!")) {
+        if (message.content().startsWith("!")) {
             if (player.getInventory().getItemInMainHand().getType() == Material.valueOf(getItemToPay())
                     && player.getInventory().getItemInMainHand().getAmount() >= getAmountToPay()) {
-                // Global chat
-                TextComponent.Builder messageComponent = Component.text()
-                        .append(Component.text("[G] ", NamedTextColor.RED, TextDecoration.BOLD))
-                        .append(Component.text(player.getName(), NamedTextColor.YELLOW))
-                        .append(Component.text(": "))
-                        .append(Component.text(message.substring(1)));
-                event.getRecipients().forEach(recipient -> recipient.sendMessage(messageComponent));
-                player.getInventory().getItemInMainHand().setAmount(
-                        player.getInventory().getItemInMainHand().getAmount() - getAmountToPay());
-                Bukkit.getLogger().info(player.getName() + " shouting '" + message + "'");
+                writeToGlobalChat(event, player, message.content().substring(1));
             } else {
-                player.sendMessage(Component.text(String.format(getBundledText("take-redstone"), getAmountToPay()),
-                        NamedTextColor.GRAY, TextDecoration.ITALIC));
+                informPlayerToTakeRedStoneBeforeWriteToGlobalChar(player);
             }
         } else {
-            // Local chat
-            event.getRecipients().removeIf(p ->
-                    !p.getWorld().equals(player.getWorld()) ||
-                            p.getLocation().distance(player.getLocation()) > getLocalChatDistance());
-            event.getRecipients().forEach(recipient -> recipient.sendMessage(Component.text()
-                    .append(Component.text("[L] ", NamedTextColor.GREEN, TextDecoration.BOLD))
-                    .append(Component.text(player.getName(), NamedTextColor.YELLOW))
-                    .append(Component.text(": "))
-                    .append(Component.text(message))
-            ));
-            Bukkit.getLogger().info(player.getName() + " saying '" + message + "'");
+            writeToLocalChat(event, player, message.content());
         }
 
         event.setCancelled(true);
+    }
+
+    private void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
+        event.viewers().forEach(recipient ->
+                recipient.sendMessage(formatMessage("[G] ", NamedTextColor.RED, player, message)));
+        player.getInventory().getItemInMainHand().setAmount(
+                player.getInventory().getItemInMainHand().getAmount() - getAmountToPay());
+    }
+
+    private void informPlayerToTakeRedStoneBeforeWriteToGlobalChar(Player player) {
+        player.sendMessage(Component.text(String.format(getBundledText("take-redstone"), getAmountToPay()),
+                NamedTextColor.GRAY, TextDecoration.ITALIC));
+    }
+
+    private void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
+        event.viewers().stream()
+                .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
+                        || audience instanceof ConsoleCommandSender)
+                .forEach(recipient ->
+                        recipient.sendMessage(formatMessage("[L] ", NamedTextColor.GREEN, player, message)));
+    }
+
+    private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
+        return viewerPlayer.getWorld().equals(player.getWorld())
+                || viewerPlayer.getLocation().distance(player.getLocation()) <= getLocalChatDistance();
+    }
+
+    private TextComponent.Builder formatMessage(String suffix, NamedTextColor suffixColor,
+                                                Player player, String message) {
+        return Component.text()
+                .append(Component.text(suffix, suffixColor, TextDecoration.BOLD))
+                .append(Component.text(player.getName(), NamedTextColor.YELLOW))
+                .append(Component.text(": "))
+                .append(Component.text(message));
     }
 
     @EventHandler
