@@ -2,6 +2,9 @@ package ua.mykolamurza.chatullo;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import ua.mykolamurza.chatullo.Command.MuteCommand;
+import ua.mykolamurza.chatullo.Command.UnmuteCommand;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
 
 import java.util.Locale;
@@ -30,7 +33,10 @@ public final class Chatullo extends JavaPlugin {
         setItemAndAmount(getConfig().getString("itemToPay", "REDSTONE"),
                 getConfig().getInt("amountToPay", 1));
 
-        getServer().getPluginManager().registerEvents(new ChatHandler(), this);
+        getCommand("mute").setExecutor(new MuteCommand(this));
+        getCommand("unmute").setExecutor(new UnmuteCommand(this));
+
+        getServer().getPluginManager().registerEvents(new ChatHandler(this), this);
     }
 
     @Override
