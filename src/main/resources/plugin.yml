@@ -2,3 +2,13 @@ name: chatullo
 version: '${project.version}'
 main: ua.mykolamurza.chatullo.Chatullo
 api-version: '1.20'
+
+commands:
+   mute:
+      description: Mute Player
+      usage: /mute <player>
+      permission: chatullo.mute
+   unmute:
+      description: Unmute Player
+      usage: /unmute <player>
+      permission: chatullo.unmute

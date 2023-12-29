@@ -12,24 +12,42 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import static ua.mykolamurza.chatullo.config.ChatConfig.*;
 import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getJoin;
 import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getQuit;
 import static ua.mykolamurza.chatullo.config.LocalizationConfig.getBundledText;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * @author Mykola Murza
  */
 public class ChatHandler implements Listener {
+    private JavaPlugin plugin;
+
+    public ChatHandler(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
         TextComponent message = (TextComponent) event.message();
 
+        if (IsPlayerMuted(player.getName())) {
+            event.setCancelled(true);
+            informMutedPlayer(player);
+            return;
+        }
+
         if (message.content().startsWith("!")) {
-            if (player.getInventory().getItemInMainHand().getType() == Material.valueOf(getItemToPay())
-                    && player.getInventory().getItemInMainHand().getAmount() >= getAmountToPay()) {
+            if (getAmountToPay() == 0 || (player.getInventory().getItemInMainHand().getAmount() >= getAmountToPay()
+                    && player.getInventory().getItemInMainHand().getType() == Material.valueOf(getItemToPay()))) {
                 writeToGlobalChat(event, player, message.content().substring(1));
             } else {
                 informPlayerToTakeRedStoneBeforeWriteToGlobalChar(player);
@@ -39,6 +57,25 @@ public class ChatHandler implements Listener {
         }
 
         event.setCancelled(true);
+    }
+
+    private boolean IsPlayerMuted(String playerName) {
+        File file = new File(plugin.getDataFolder(), "muted_players.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
+            String currentLine;
+
+            while ((currentLine = reader.readLine()) != null) {
+                if (currentLine.trim().equalsIgnoreCase(playerName)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
@@ -53,6 +90,11 @@ public class ChatHandler implements Listener {
                 NamedTextColor.GRAY, TextDecoration.ITALIC));
     }
 
+    private void informMutedPlayer(Player player) {
+        player.sendMessage(Component.text(String.format(getBundledText("mute-message"), getAmountToPay()),
+                NamedTextColor.GRAY, TextDecoration.ITALIC));
+    }
+
     private void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().stream()
                 .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
@@ -62,8 +104,8 @@ public class ChatHandler implements Listener {
     }
 
     private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
-        return viewerPlayer.getWorld().equals(player.getWorld())
-                || viewerPlayer.getLocation().distance(player.getLocation()) <= getLocalChatDistance();
+        return !(!viewerPlayer.getWorld().equals(player.getWorld())
+                || viewerPlayer.getLocation().distance(player.getLocation()) > getLocalChatDistance());
     }
 
     private TextComponent.Builder formatMessage(String suffix, NamedTextColor suffixColor,
