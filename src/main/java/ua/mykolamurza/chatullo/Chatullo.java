@@ -4,10 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
 
-import java.util.Locale;
-
-import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.setJoinQuit;
-
 /**
  * Local and global chat system. Pay to write to the server.
  *
@@ -25,7 +21,6 @@ public final class Chatullo extends JavaPlugin {
 
         Bukkit.getLogger().info("Start Chatullo.");
         saveDefaultConfig();
-        setJoinQuit(getConfig().getString("join", null), getConfig().getString("quit", null));
         getServer().getPluginManager().registerEvents(new ChatHandler(), this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
