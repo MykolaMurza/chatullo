@@ -38,7 +38,7 @@ local-format: "&8[&aL&8]&r &7%country_name% &8| &6%player% &e>&r %message%"
 
 # Write a message that will be displayed when a player joins or leaves.
 # Leave the field blank if you don't want the message to appear.
-# Write %s instead of the player's name.
+# Write %player% instead of the player's name.
 join:
 quit:
 ```

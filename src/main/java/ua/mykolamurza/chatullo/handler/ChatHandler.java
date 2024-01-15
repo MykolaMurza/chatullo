@@ -2,10 +2,7 @@ package ua.mykolamurza.chatullo.handler;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -15,9 +12,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ua.mykolamurza.chatullo.Chatullo;
 
-import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getJoin;
-import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getQuit;
-
 /**
  * @author Mykola Murza
  */
@@ -26,6 +20,8 @@ public class ChatHandler implements Listener {
     private static final int radius2 = (int) Math.pow(Chatullo.plugin.getConfig().getInt("radius"), 2);
     private static final String globalformat = Chatullo.plugin.getConfig().getString("global-format");
     private static final String localformat = Chatullo.plugin.getConfig().getString("local-format");
+    private static final String join = Chatullo.plugin.getConfig().getString("join");
+    private static final String quit = Chatullo.plugin.getConfig().getString("quit");
     public static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
 
     @EventHandler
@@ -64,6 +60,7 @@ public class ChatHandler implements Listener {
         String formatted = switch (type){
             case GLOBAL -> globalformat;
             case LOCAL -> localformat;
+            case OTHER -> message;
         };
         if (Chatullo.papi)
             return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
@@ -73,27 +70,19 @@ public class ChatHandler implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (getJoin() == null) {
+        if (join == null) {
             event.joinMessage(null);
         } else {
-            if (getJoin().contains("%s")) {
-                event.joinMessage(Component.text(String.format(getJoin(), event.getPlayer().getName())));
-            } else {
-                event.joinMessage(Component.text(getJoin()));
-            }
+            event.joinMessage(formatMessage(Type.OTHER, event.getPlayer(), join));
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        if (getQuit() == null) {
+        if (quit == null) {
             event.quitMessage(null);
         } else {
-            if (getQuit().contains("%s")) {
-                event.quitMessage(Component.text(String.format(getQuit(), event.getPlayer().getName())));
-            } else {
-                event.quitMessage(Component.text(getQuit()));
-            }
+            event.quitMessage(formatMessage(Type.OTHER, event.getPlayer(), quit));
         }
     }
 }
