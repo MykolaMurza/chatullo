@@ -1,39 +1,40 @@
 package ua.mykolamurza.chatullo.handler;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import ua.mykolamurza.chatullo.Chatullo;
 
-import static ua.mykolamurza.chatullo.config.ChatConfig.*;
 import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getJoin;
 import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getQuit;
-import static ua.mykolamurza.chatullo.config.LocalizationConfig.getBundledText;
 
 /**
  * @author Mykola Murza
  */
 public class ChatHandler implements Listener {
+
+    private static final int radius2 = (int) Math.pow(Chatullo.plugin.getConfig().getInt("radius"), 2);
+    private static final String globalformat = Chatullo.plugin.getConfig().getString("global-format");
+    private static final String localformat = Chatullo.plugin.getConfig().getString("local-format");
+    public static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
         TextComponent message = (TextComponent) event.message();
 
         if (message.content().startsWith("!")) {
-            if (player.getInventory().getItemInMainHand().getType() == Material.valueOf(getItemToPay())
-                    && player.getInventory().getItemInMainHand().getAmount() >= getAmountToPay()) {
-                writeToGlobalChat(event, player, message.content().substring(1));
-            } else {
-                informPlayerToTakeRedStoneBeforeWriteToGlobalChar(player);
-            }
+            writeToGlobalChat(event, player, message.content().substring(1));
         } else {
             writeToLocalChat(event, player, message.content());
         }
@@ -43,14 +44,7 @@ public class ChatHandler implements Listener {
 
     private void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().forEach(recipient ->
-                recipient.sendMessage(formatMessage("[G] ", NamedTextColor.RED, player, message)));
-        player.getInventory().getItemInMainHand().setAmount(
-                player.getInventory().getItemInMainHand().getAmount() - getAmountToPay());
-    }
-
-    private void informPlayerToTakeRedStoneBeforeWriteToGlobalChar(Player player) {
-        player.sendMessage(Component.text(String.format(getBundledText("take-redstone"), getAmountToPay()),
-                NamedTextColor.GRAY, TextDecoration.ITALIC));
+                recipient.sendMessage(formatMessage(Type.GLOBAL, player, message)));
     }
 
     private void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
@@ -58,21 +52,23 @@ public class ChatHandler implements Listener {
                 .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
                         || audience instanceof ConsoleCommandSender)
                 .forEach(recipient ->
-                        recipient.sendMessage(formatMessage("[L] ", NamedTextColor.GREEN, player, message)));
+                        recipient.sendMessage(formatMessage(Type.LOCAL, player, message)));
     }
 
     private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
         return viewerPlayer.getWorld().equals(player.getWorld())
-                || viewerPlayer.getLocation().distance(player.getLocation()) <= getLocalChatDistance();
+                || viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= radius2;
     }
 
-    private TextComponent.Builder formatMessage(String suffix, NamedTextColor suffixColor,
-                                                Player player, String message) {
-        return Component.text()
-                .append(Component.text(suffix, suffixColor, TextDecoration.BOLD))
-                .append(Component.text(player.getName(), NamedTextColor.YELLOW))
-                .append(Component.text(": "))
-                .append(Component.text(message));
+    private TextComponent formatMessage(Type type, Player player, String message) {
+        String formatted = switch (type){
+            case GLOBAL -> globalformat;
+            case LOCAL -> localformat;
+        };
+        if (Chatullo.papi)
+            return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
+        else
+            return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
     }
 
     @EventHandler

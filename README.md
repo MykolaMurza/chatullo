@@ -1,14 +1,18 @@
 # Chatullo - A Minecraft Local and Global Chat Plugin
 
+# Forked by justADeni
+Forked this plugin for personal purposes, removed redstone payments, added soft-dependency on PlaceholderAPI,
+added local and global formats to config, added legacy color formatting support, removed localization, improved distance calculation.
+
 ## Overview
 
-Chatullo is a Minecraft plugin that introduces global and local chat into the game, instead of just one global. The player can freely write to the local chat, which is visible by default within a radius of 200 meters from the player. To write to the global chat so that the message is visible to all players, the player must pay. The default cost of a message is 2 redstone dust.
+Chatullo is a Minecraft plugin that introduces global and local chat into the game, instead of just one global. The player can freely write to the local chat, which is visible by default within a radius of 200 meters from the player.
 
 This plugin is built with the Paper library and should be compatible with any server running Paper.
 
 ## Usage
 
-Use `!` at the start of the message to wrote to the global chat. You have to hold a redstone in main hand. Don't start your message with `!` if you want to write to the local chat (200 blocks distance).
+Use `!` at the start of the message to wrote to the global chat. Don't start your message with `!` if you want to write to the local chat (200 blocks distance).
 
 ### Commands
 
@@ -20,19 +24,17 @@ To install the plugin, download the latest release and place the `.jar` file int
 
 ## Configuring
 
-Server administrators have the file `config.yml` in the plugin's directory. This file provides configurations for plugin language (see [Localization section](#localization)), an item to pay (names as in the Material), a number of items, and the radius of the local chat distance. The file also has keys `join` and `quit`, they are responsible for the message that is displayed in the chat when the player enters or leaves the server. 
+Server administrators have the file `config.yml` in the plugin's directory.
+They can change the radius of the local chat distance, local and global format. The file also has keys `join` and `quit`, they are responsible for the message that is displayed in the chat when the player enters or leaves the server. 
 ```
-# Choose a language for plugin messages
-# en - English
-# uk - Ukrainian
-language: 'en'
-
 # Set the radius of local chat.
 radius: 200
 
-# Set the item and its amount which a player has to use to write to the global chat.
-itemToPay: REDSTONE
-amountToPay: 2
+# Global chat format
+global-format: "&8[&cG&8]&r &7%country_name% &8| &6%player% &e>&r %message%"
+
+# Local chat format
+local-format: "&8[&aL&8]&r &7%country_name% &8| &6%player% &e>&r %message%"
 
 # Write a message that will be displayed when a player joins or leaves.
 # Leave the field blank if you don't want the message to appear.
@@ -40,10 +42,6 @@ amountToPay: 2
 join:
 quit:
 ```
-
-## Localization
-
-Chatullo supports localization and comes with English and Ukrainian language files by default. You can set `language: 'en'` to use English or set `language: 'uk'` to use Ukrainian. If you want to add new languages - contribute the project! I will be happy to add new languages.
 
 ## Contributing
 
