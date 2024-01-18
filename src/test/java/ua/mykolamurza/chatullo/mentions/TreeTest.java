@@ -8,44 +8,10 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 class TreeTest {
-    /*
-    @org.junit.jupiter.api.Test
-    void construct() {
-        List<String> data = Arrays.asList("Notch", "jeb_", "username1", "username2", "mykolamurza", "justADeni");
-        //for (int i = 0; i < 10000; i++)
-        //    Tree.construct(data);
-
-        long starttime = System.nanoTime();
-        Tree.construct(data);
-        long endtime = System.nanoTime();
-        Branch[] base = Tree.base;
-        for (int i = 0; i <= 127; i++) {
-            Branch start = base[i];
-            if (start == null) {
-                continue;
-            }
-            System.out.println("Depth: 0, char: " + (char) i);
-            list(start, 1);
-        }
-        System.out.println("Tree construction time: " + (endtime - starttime) + " nanos");
-    }
-
-    // Recursive tests, yummy ;)
-    void list(Branch branch, int depth) {
-        if (branch.sub == null) {
-            System.out.println("Depth: " + depth + ", char: " + branch.c + ", Branch End");
-            return;
-        }
-        System.out.println("Depth: " + depth + ", char: " + branch.c);
-        for (Branch next: branch.sub) {
-            list(next, depth + 1);
-        }
-    }
-    */
 
     @org.junit.jupiter.api.Test
     void visualize() {
-        List<String> data = Arrays.asList("Notch", "jeb_", "username1", "username2", "mykolamurza", "justADeni");
+        List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "username1", "username2", "username3", "mykolamurza", "justADeni", "vt");
         Tree.construct(data);
         Branch[][] base = Tree.base;
         ArrayList<Character> entrychars = new ArrayList<>();
@@ -53,30 +19,85 @@ class TreeTest {
             if (base[i] != null)
                 entrychars.add((char)i);
         }
-        for (char entrychar: entrychars) {
+        for (int j = 0; j < entrychars.size(); j++) {
+            char entrychar = entrychars.get(j);
             Branch[] branches = base[entrychar];
 
-            for (Branch branch: branches) {
-                System.out.print(entrychar);
-                //Branch branch = base[entrychar];
-                listchar(branch, 0);
-                System.out.println();
+            StringBuilder padding = new StringBuilder();
+            if (j == 0) {
+                if (entrychars.size() == 1)
+                    padding.append("──");
+                else
+                    padding.append("┌──");
+            } else if (j+1 != entrychars.size()) {
+                padding.append("├──");
+            } else {
+                padding.append("└──");
             }
+
+            padding.append(entrychar);
+
+            for (int i = 0; i < branches.length; i++) {
+                Branch branch = branches[i];
+
+                if (branches.length > 1 && i != 0) {
+                    padding.append("\n");
+                    if (j+1 < entrychars.size())
+                        padding.append("│");
+                    else
+                        padding.append(" ");
+
+                    if (branches.length == 2) {
+                        padding.append("  └──");
+                    } else if (i + 1 != branches.length) {
+                        padding.append("  ├──");
+                    } else {
+                        padding.append("  └──");
+                    }
+                } else {
+                    padding.append("──");
+                }
+
+                padding.append(branch.c);
+                if (branch.isEnd)
+                    padding.append(".");
+                listchar(branch, padding, 6);
+
+            }
+            System.out.println(padding.toString());
         }
     }
 
-    void listchar(Branch previous, int depth) {
-        System.out.print("-" + previous.c);
-        //if (previous.isEnd)
-        //    System.out.println("-END");
-        if (previous.sub != null) {
-            for (int i = 0; i < previous.sub.length; i++) {
-                if (i > 0) {
-                    //System.out.println("-".repeat(depth));
-                    System.out.println("\nBRANCH DIVERGE");
+    void listchar(Branch previous, StringBuilder padding, int depth) {
+        if (previous.sub == null)
+            return;
+
+        for (int i = 0; i < previous.sub.length; i++) {
+            Branch branch = previous.sub[i];
+            //if (branch.sub == null)
+            //    continue;
+
+            if (previous.sub.length > 1 && i != 0) {
+                padding.append("\n");
+                padding.append(" ".repeat(depth));
+                if (previous.sub.length == 2) {
+                    padding.append("└──");
+                } else if (i + 1 != previous.sub.length) {
+                    padding.append("├──");
+                } else {
+                    padding.append("└──");
                 }
-                listchar(previous.sub[i], depth + 1);
+            } else {
+                padding.append("──");
             }
+            padding.append(branch.c);
+            int dots = 0;
+            if (branch.isEnd) {
+                padding.append('.');
+                dots++;
+            }
+
+            listchar(branch, padding, depth + 3 + dots);
         }
     }
 }

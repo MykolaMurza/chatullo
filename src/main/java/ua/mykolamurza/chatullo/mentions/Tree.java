@@ -75,8 +75,6 @@ public class Tree {
                 if (left.length() == 0)
                     continue;
 
-                // Branched off, start creating new ones
-
                 // Branched off right at the trunk
                 if (previous == null) {
                     previous = new Branch(t,null);
@@ -86,14 +84,8 @@ public class Tree {
                     augmented[branches.length] = previous;
                     newbase[c] = augmented;
                     left = left.substring(1);
-                    System.out.println("made new branch with: " + t + " left: " + left);
                     t = left.charAt(0);
-                } else {
-                    System.out.println("previous with: " + previous.c + " wasnt null with: " + t + " left: " + left);
                 }
-
-                if (left.length() == 0)
-                    continue;
 
                 Branch next = new Branch(t, null);
                 if (previous.sub == null){
@@ -107,7 +99,7 @@ public class Tree {
                 previous = next;
                 left = left.substring(1);
 
-                while (left.length() > 0) {
+                while (!left.isEmpty()) {
                     t = left.charAt(0);
                     next = new Branch(t, null);
                     previous.sub = new Branch[]{next};
