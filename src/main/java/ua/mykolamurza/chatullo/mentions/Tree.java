@@ -1,77 +1,123 @@
 package ua.mykolamurza.chatullo.mentions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
+import java.util.Arrays;
 import java.util.List;
 
 public class Tree {
 
-    // Utility class, private constructor
-    // so that it can't get instantiated
     private Tree() {}
 
     // All 128 characters from ascii table: https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html
     // When no player IGN starts with said char (corresponding to index), it's null
-    public static Branch[] base = new Branch[128];
+    public static Branch[][] base = new Branch[128][];
 
     public static void construct(List<String> strings) {
-        Branch[] newbase = new Branch[128];
+        Branch[][] newbase = new Branch[128][];
         for (String string: strings) {
             if (string.isEmpty())
                 continue;
 
             char c = string.charAt(0);
-            Branch current = newbase[c];
-            if (current == null){
-                current = new Branch((char)129, new Branch[0]);
-                newbase[c] = current;
+            if (newbase[c] == null) {
+                String left = string.substring(1);
+                Branch current = new Branch((char)0,null);
+                newbase[c] = new Branch[]{current};
+                while (!left.isEmpty()) {
+                    current.c = left.charAt(0);
+                    if (left.length() < 2)
+                        break;
+
+                    Branch next = new Branch((char)0, null);
+                    current.sub = new Branch[]{next};
+                    current = next;
+                    left = left.substring(1);
+                }
+                current.isEnd = true;
+            } else {
+                if (string.length() == 1)
+                    continue;
+
+                Branch[] trunk = newbase[c];
+                String left = string.substring(1);
+                char t = left.charAt(0);
+                Branch previous = null;
+                // Find first branch stemming from first char
+                for (Branch branch: trunk) {
+                    if (branch.c == t) {
+                        previous = branch;
+                        left = left.substring(1);
+                        t = left.charAt(0);
+                        break;
+                    }
+                }
+
+                // Branch found, follow it
+                if (previous != null) {
+                    while (!left.isEmpty()) {
+                        if (previous.sub == null)
+                            break;
+
+                        boolean found = false;
+                        for (Branch branch: previous.sub) {
+                            if (branch.c == t) {
+                                found = true;
+                                previous = branch;
+                                left = left.substring(1);
+                                t = left.charAt(0);
+                                break;
+                            }
+                        }
+                        if (!found)
+                            break;
+                    }
+                }
+
+                if (left.length() == 0)
+                    continue;
+
+                // Branched off, start creating new ones
+
+                // Branched off right at the trunk
+                if (previous == null) {
+                    previous = new Branch(t,null);
+                    Branch[] branches = newbase[c];
+                    Branch[] augmented = new Branch[branches.length + 1];
+                    System.arraycopy(branches, 0, augmented, 0, branches.length);
+                    augmented[branches.length] = previous;
+                    newbase[c] = augmented;
+                    left = left.substring(1);
+                    System.out.println("made new branch with: " + t + " left: " + left);
+                    t = left.charAt(0);
+                } else {
+                    System.out.println("previous with: " + previous.c + " wasnt null with: " + t + " left: " + left);
+                }
+
+                if (left.length() == 0)
+                    continue;
+
+                Branch next = new Branch(t, null);
+                if (previous.sub == null){
+                    previous.sub = new Branch[]{next};
+                } else {
+                    Branch[] augmented = new Branch[previous.sub.length + 1];
+                    System.arraycopy(previous.sub, 0, augmented, 0, previous.sub.length);
+                    augmented[previous.sub.length] = next;
+                    previous.sub = augmented;
+                }
+                previous = next;
+                left = left.substring(1);
+
+                while (left.length() > 0) {
+                    t = left.charAt(0);
+                    next = new Branch(t, null);
+                    previous.sub = new Branch[]{next};
+                    previous = next;
+                    left = left.substring(1);
+                }
+                next.isEnd = true;
             }
-            add(string.substring(1), current);
         }
         base = newbase;
-    }
-
-    private static void add(String left, Branch previous) {
-        // We have reached the end of our string
-        if (left.isEmpty())
-            return;
-
-        char c = left.charAt(0);
-        // Branch was newly created, no sub-branches
-        if (previous.c == 129) {
-            previous.c = c;
-
-            if (left.length() == 1)
-                return;
-
-            Branch next = new Branch((char) 129, new Branch[0]);
-            previous.sub = new Branch[]{next};
-
-            add(left.substring(1), next);
-            return;
-        }
-
-        // Branch already has sub-branches
-        for (Branch branch : previous.sub) {
-            // Found a sub-branch with our char, follow it
-            if (branch.c == c) {
-                if (left.length() > 1)
-                    add(left.substring(1), branch);
-
-                break;
-            }
-        }
-        // Did not find any sub-branch with our char, create it
-        Branch[] augmentedbranches = new Branch[previous.sub.length + 1];
-        System.arraycopy(previous.sub, 0, augmentedbranches, 0, previous.sub.length);
-        Branch next = new Branch(c, new Branch[0]);
-        // And add it to the sub-branches
-        augmentedbranches[augmentedbranches.length - 1] = next;
-        previous.sub = augmentedbranches;
-
-        if (left.length() > 1)
-            add(left.substring(1), next);
     }
 
 }
