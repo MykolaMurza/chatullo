@@ -1,5 +1,11 @@
 package ua.mykolamurza.chatullo.mentions;
 
+import javafx.util.Pair;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,12 +13,11 @@ public class Tree {
 
     private Tree() {}
 
-    // All 128 characters from ascii table: https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html
     // When no player IGN starts with said char (corresponding to index), it's null
-    public static Branch[][] base = new Branch[128][];
+    public static Branch[][] base = new Branch[123][];
 
     public static void construct(List<String> strings) {
-        Branch[][] newbase = new Branch[128][];
+        Branch[][] newbase = new Branch[123][];
         for (String string: strings) {
             if (string.isEmpty())
                 continue;
@@ -110,6 +115,177 @@ public class Tree {
             }
         }
         base = newbase;
+    }
+
+    /**
+     * Returns whether message contains any of the strings.
+     * @param message Input message to search through.
+     * @return Returns true if found a match, false if not.
+     */
+    public static boolean contains(String message) {
+        Branch[] current = null;
+        for (int j = 0; j < message.length(); j++) {
+            char c = message.charAt(j);
+            if (c > 122){
+                current = null;
+                continue;
+            }
+            if (current == null){
+                if (base[c] != null)
+                    current = base[c];
+            } else {
+                for (Branch branch: current) {
+                    if (branch.c == c) {
+                        if (branch.isEnd)
+                            return true;
+
+                        current = branch.sub;
+
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns whether message equals any of the strings.
+     * @param message Input message to search through.
+     * @return Returns true if found a match, false if not.
+     */
+    public static boolean containsExact(String message) {
+        Branch[] current = null;
+        for (int j = 0; j < message.length(); j++) {
+            char c = message.charAt(j);
+            if (c > 122){
+                current = null;
+                continue;
+            }
+            if (current == null){
+                if (j > 0)
+                    return false;
+
+                if (base[c] != null)
+                    current = base[c];
+            } else {
+                boolean found = false;
+                for (Branch branch: current) {
+                    if (branch.c == c) {
+                        if (branch.isEnd && j == message.length()-1)
+                            return true;
+
+                        current = branch.sub;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns start and end index of the found strings in the message.
+     * @param message Input message to search through.
+     * @return List of long containing start and end indexes (inclusive,exclusive).
+     */
+    @NotNull
+    public static List<Long> findMultiple(@NotNull String message) {
+        Branch[] current = null;
+        int start = 0;
+        int lenght = 0;
+        List<Long> foundsofar = new ArrayList<>();
+        int found = 0;
+
+        for (int j = 0; j < message.length(); j++) {
+            char c = message.charAt(j);
+            if (c > 122){
+                current = null;
+                lenght = 0;
+                continue;
+            }
+            if (current == null){
+                if (base[c] != null) {
+                    current = base[c];
+                    start = j;
+                }
+            } else {
+                for (Branch branch: current) {
+                    if (branch.c == c) {
+                        lenght++;
+                        current = branch.sub;
+                        if (branch.isEnd) {
+                            if (found > 1) {
+                                if ((int)(foundsofar.get(found - 1) >> 32) == start) {
+                                    foundsofar.set(found - 1, (((long)start) << 32) | ((lenght+1) & 0xffffffffL));
+                                    break;
+                                }
+                            }
+                            foundsofar.add((((long)start) << 32) | ((lenght+1) & 0xffffffffL));
+                            found++;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return foundsofar;
+    }
+
+    /**
+     * Returns start index and length index of the first found string in the message or null if not found.
+     * @param message Input message to search through.
+     * @return long containing start index and length (inclusive,exclusive) or 0 if not found.
+     */
+    public static long findFirst(@NotNull String message) {
+        //int messagesize = message.length();
+        //if (messagesize <= 1)
+        //    return 0;
+
+        Branch[] current = null;
+        int start = 0;
+        int lenght = 0;
+
+        for (int j = 0; j < /*messagesize*/message.length(); j++) {
+            char c = message.charAt(j);
+            if (c > 122){
+                current = null;
+                lenght = 0;
+                continue;
+            }
+            if (current == null){
+                lenght = 0;
+                if (base[c] != null) {
+                    current = base[c];
+                    start = j;
+                }
+            } else {
+                for (Branch branch: current) {
+                    if (branch.c == c) {
+                        lenght++;
+                        current = branch.sub;
+                        if (branch.isEnd) {
+                            //System.out.println("start: " + start + " end: " + (lenght+1));
+                            return (((long)start) << 32) | ((lenght+1) & 0xffffffffL);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    // Do it yourself in place, it will be faster than calling two methods
+    public static int startIndex(long returned) {
+        return (int)(returned >> 32);
+    }
+
+    public static int endIndex(long returned) {
+        return (int) returned;
     }
 
 }
