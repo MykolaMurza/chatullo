@@ -14,7 +14,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
 
-    List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni");
+    //List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni");
+    List<String> data = Arrays.asList("ShadowDragon64", "MysticCrafter", "DiamondRover", "LavaLeaper", "BlazeChaser",
+            "ThunderPenguin", "FrostyFox123", "IronWanderer", "JungleWhisperer", "PixelPioneer", "AquaVortex", "EmberEagle", "GalacticNomad",
+            "NetherNinjaX", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle", "CreeperCommander", "StarryStitcher", "SilverStriker",
+            "EnderExplorer", "MysticMango", "StormyStardust", "WanderingWyvern", "PixelProwler", "CosmicCraze", "LunarLynx", "BlazeBard",
+            "AquaVortex", "EmberEagle", "GalacticNomad", "NetherNinjaX", "RubyRider", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle",
+            "CreeperCommander", "StarryStitcher", "SilverStriker", "TerraTitanium", "EnderExplorer", "MysticMango", "StormyStardust",
+            "WanderingWyvern", "PixelProwler", "CosmicCraze", "LunarLynx", "DiamondDynamo", "ArcticArchitect", "EnchantedExplorer",
+            "PhantomPioneer", "SunlitSorcerer", "DragonDreamer", "GildedGolem", "EmeraldEnigma", "TwilightTinkerer", "QuantumQuill",
+            "ObsidianOasis", "LavaLuminary", "EnderEmpress", "CreeperCatalyst", "StarlightSeeker", "IronIgniter", "CelestialCrafter",
+            "NetherNomad", "AquaAdventurer", "RubyRogue", "MysticMule", "StormySeeker", "EmberElemental", "PixelPaladin", "LunarLabyrinth");
 
     @Order(3)
     @Test
@@ -185,7 +195,7 @@ class TreeTest {
             for (final String currentword : split) {
                 //if (currentword.matches("^\\w{3,16}$") && data.contains(currentword)) {
                 if (currentword.length() > 2 && currentword.length() < 17 && data.contains(currentword)) {
-                    System.out.println("Regex matched " + currentword + " in message #" + i);
+                    System.out.println("List matched " + currentword + " in message #" + i);
                 }
             }
         }
