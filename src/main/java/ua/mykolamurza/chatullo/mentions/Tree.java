@@ -210,6 +210,7 @@ public class Tree {
             if (current == null){
                 if (base[c] != null) {
                     current = base[c];
+                    lenght = 1;
                     start = j;
                 }
             } else {
@@ -222,18 +223,18 @@ public class Tree {
                         if (branch.isEnd) {
                             if (found > 1) {
                                 if ((int)(foundsofar.get(found - 1) >> 32) == start) {
-                                    foundsofar.set(found - 1, (((long)start) << 32) | ((lenght+1) & 0xffffffffL));
+                                    foundsofar.set(found - 1, (((long)start) << 32) | ((lenght) & 0xffffffffL));
                                     break;
                                 }
                             }
-                            foundsofar.add((((long)start) << 32) | ((lenght+1) & 0xffffffffL));
+                            foundsofar.add((((long)start) << 32) | ((lenght) & 0xffffffffL));
                             found++;
                         }
                         break;
                     }
                     if (!success) {
                         current = null;
-                        lenght = 0;
+                        //lenght = 0;
                     }
                 }
             }
@@ -268,9 +269,9 @@ public class Tree {
                     current = base[c];
                     start = j;
                     length = 1;
-                } else {
+                } /*else {
                     length = 0;
-                }
+                }*/
             } else {
                 boolean found = false;
                 for (Branch branch: current) {
@@ -287,7 +288,7 @@ public class Tree {
                 }
                 if (!found) {
                     start = 0;
-                    length = 0;
+                    //length = 0;
                     current = null;
                 }
 
