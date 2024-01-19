@@ -247,29 +247,32 @@ public class Tree {
 
         Branch[] current = null;
         int start = 0;
-        int lenght = 0;
+        int length = 0;
 
         for (int j = 0; j < /*messagesize*/message.length(); j++) {
             char c = message.charAt(j);
             if (c > 122){
                 current = null;
-                lenght = 0;
+                start = 0;
+                length = 0;
                 continue;
             }
             if (current == null){
-                lenght = 0;
                 if (base[c] != null) {
                     current = base[c];
                     start = j;
+                    length = 1;
+                } else {
+                    length = 0;
                 }
             } else {
                 for (Branch branch: current) {
                     if (branch.c == c) {
-                        lenght++;
+                        length++;
                         current = branch.sub;
                         if (branch.isEnd) {
-                            //System.out.println("start: " + start + " end: " + (lenght+1));
-                            return (((long)start) << 32) | ((lenght+1) & 0xffffffffL);
+                            System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
+                            return (((long)start) << 32) | ((length) & 0xffffffffL);
                         }
                         break;
                     }

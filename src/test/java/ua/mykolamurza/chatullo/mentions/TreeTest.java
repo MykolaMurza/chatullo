@@ -257,17 +257,20 @@ class TreeTest {
             splitlistspeed += end2 - start2;
 
             long start3 = System.nanoTime();
-            int last = (int)Tree.findFirst(message);
+
+            long found = Tree.findFirst(message);
+            int last = (int)(found >> 32) + (int)found;
             String left = message;
             while (last != 0){
                 left = left.substring(last);
                 if (left.length() < 3)
                     break;
 
-                long found = Tree.findFirst(left);
-                int start = (int)(found >> 32);
-                last = start + (int)found;
-                System.out.println("matched: " + message.substring(start, last));
+                found = Tree.findFirst(left);
+                if (found == 0)
+                    break;
+
+                last = (int)(found >> 32) + (int)found;
             }
             long end3 = System.nanoTime();
             methodtreespeed += end3 - start3;
@@ -276,7 +279,7 @@ class TreeTest {
         System.out.println("Cold path list split took " + splitlistspeed/1000000 + "ms and " + splitlistspeed%1000000 + "ns");
         System.out.println("Cold path set  split took " + splitsetspeed/1000000 + "ms and " + splitsetspeed%1000000 + "ns");
         System.out.println("Cold path tree split took " + splittreespeed/1000000 + "ms and " + splittreespeed%1000000 + "ns");
-        System.out.println("Cold path tree metho took " + methodtreespeed/1000000 + "ms and  " + methodtreespeed%1000000 + "ns");
+        System.out.println("Cold path tree metho took " + methodtreespeed/1000000 + "ms and " + methodtreespeed%1000000 + "ns");
     }
 
     private static double round(double value, int places) {
