@@ -1,6 +1,5 @@
 package ua.mykolamurza.chatullo.mentions;
 
-import javafx.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +67,8 @@ public class Tree {
                                 found = true;
                                 previous = branch;
                                 left = left.substring(1);
+                                if (left.length() == 0)
+                                    break;
                                 t = left.charAt(0);
                                 break;
                             }

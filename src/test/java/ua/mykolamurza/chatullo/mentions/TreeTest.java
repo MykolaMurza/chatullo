@@ -1,6 +1,5 @@
 package ua.mykolamurza.chatullo.mentions;
 
-import javafx.util.Pair;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
 
-    //List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni");
+    //List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni", "xz");
     List<String> data = Arrays.asList("ShadowDragon64", "MysticCrafter", "DiamondRover", "LavaLeaper", "BlazeChaser",
             "ThunderPenguin", "FrostyFox123", "IronWanderer", "JungleWhisperer", "PixelPioneer", "AquaVortex", "EmberEagle", "GalacticNomad",
             "NetherNinjaX", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle", "CreeperCommander", "StarryStitcher", "SilverStriker",
