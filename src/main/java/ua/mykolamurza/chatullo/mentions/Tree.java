@@ -190,7 +190,7 @@ public class Tree {
     /**
      * Returns start and end index of the found strings in the message.
      * @param message Input message to search through.
-     * @return List of long containing start and end indexes (inclusive,exclusive).
+     * @return List of long containing start indexes and lengths.
      */
     @NotNull
     public static List<Long> findMultiple(@NotNull String message) {
@@ -214,7 +214,9 @@ public class Tree {
                 }
             } else {
                 for (Branch branch: current) {
+                    boolean success = false;
                     if (branch.c == c) {
+                        success = true;
                         lenght++;
                         current = branch.sub;
                         if (branch.isEnd) {
@@ -229,6 +231,10 @@ public class Tree {
                         }
                         break;
                     }
+                    if (!success) {
+                        current = null;
+                        lenght = 0;
+                    }
                 }
             }
         }
@@ -238,7 +244,7 @@ public class Tree {
     /**
      * Returns start index and length index of the first found string in the message or null if not found.
      * @param message Input message to search through.
-     * @return long containing start index and length (inclusive,exclusive) or 0 if not found.
+     * @return long containing start index and length or 0 if not found.
      */
     public static long findFirst(@NotNull String message) {
         //int messagesize = message.length();
@@ -266,17 +272,25 @@ public class Tree {
                     length = 0;
                 }
             } else {
+                boolean found = false;
                 for (Branch branch: current) {
                     if (branch.c == c) {
+                        found = true;
                         length++;
                         current = branch.sub;
                         if (branch.isEnd) {
-                            System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
+                            //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
                             return (((long)start) << 32) | ((length) & 0xffffffffL);
                         }
                         break;
                     }
                 }
+                if (!found) {
+                    start = 0;
+                    length = 0;
+                    current = null;
+                }
+
             }
         }
         return 0;
