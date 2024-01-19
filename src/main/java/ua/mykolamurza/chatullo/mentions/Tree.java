@@ -196,7 +196,7 @@ public class Tree {
     public static List<Long> findMultiple(@NotNull String message) {
         Branch[] current = null;
         int start = 0;
-        int lenght = 0;
+        int length = 0;
         List<Long> foundsofar = new ArrayList<>();
         int found = 0;
 
@@ -204,13 +204,13 @@ public class Tree {
             char c = message.charAt(j);
             if (c > 122){
                 current = null;
-                lenght = 0;
+                length = 0;
                 continue;
             }
             if (current == null){
                 if (base[c] != null) {
                     current = base[c];
-                    lenght = 1;
+                    length = 1;
                     start = j;
                 }
             } else {
@@ -218,23 +218,24 @@ public class Tree {
                     boolean success = false;
                     if (branch.c == c) {
                         success = true;
-                        lenght++;
+                        length++;
                         current = branch.sub;
                         if (branch.isEnd) {
                             if (found > 1) {
                                 if ((int)(foundsofar.get(found - 1) >> 32) == start) {
-                                    foundsofar.set(found - 1, (((long)start) << 32) | ((lenght) & 0xffffffffL));
+                                    foundsofar.set(found - 1, (((long)start) << 32) | ((length) & 0xffffffffL));
                                     break;
                                 }
                             }
-                            foundsofar.add((((long)start) << 32) | ((lenght) & 0xffffffffL));
+                            foundsofar.add((((long)start) << 32) | ((length) & 0xffffffffL));
+                            //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
                             found++;
                         }
                         break;
                     }
                     if (!success) {
                         current = null;
-                        //lenght = 0;
+                        //length = 0;
                     }
                 }
             }

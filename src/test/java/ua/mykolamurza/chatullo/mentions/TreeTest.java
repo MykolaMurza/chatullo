@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
 
-    List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni", "vt");
+    List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni");
 
     @Order(3)
     @Test
@@ -214,7 +214,8 @@ class TreeTest {
         long splitlistspeed = 0L;
         long splitsetspeed = 0L;
         long splittreespeed = 0L;
-        long methodtreespeed = 0L;
+        long firsttreespeed = 0L;
+        long manytreespeed = 0L;
 
         List<String> list = new ArrayList<>(10);
 
@@ -273,13 +274,21 @@ class TreeTest {
                 last = (int)(found >> 32) + (int)found;
             }
             long end3 = System.nanoTime();
-            methodtreespeed += end3 - start3;
+            firsttreespeed += end3 - start3;
+
+            long start5 = System.nanoTime();
+            Tree.findMultiple(message);
+            long end5 = System.nanoTime();
+            manytreespeed += end5 - start5;
         }
 
-        System.out.println("Cold path list split took " + splitlistspeed/1000000 + "ms and " + splitlistspeed%1000000 + "ns");
-        System.out.println("Cold path set  split took " + splitsetspeed/1000000 + "ms and " + splitsetspeed%1000000 + "ns");
-        System.out.println("Cold path tree split took " + splittreespeed/1000000 + "ms and " + splittreespeed%1000000 + "ns");
-        System.out.println("Cold path tree metho took " + methodtreespeed/1000000 + "ms and " + methodtreespeed%1000000 + "ns");
+        System.out.println("list split took " + splitlistspeed/1000000 + "ms and " + splitlistspeed%1000000 + "ns");
+        System.out.println("set  split took " + splitsetspeed/1000000 + "ms and " + splitsetspeed%1000000 + "ns");
+        System.out.println("tree split took " + splittreespeed/1000000 + "ms and " + splittreespeed%1000000 + "ns");
+
+        // These two also have the disadvantage of finding much more stuff
+        System.out.println("tree first took " + firsttreespeed/1000000 + "ms and " + firsttreespeed%1000000 + "ns");
+        System.out.println("tree many  took " + manytreespeed/1000000 + "ms and " + manytreespeed%1000000 + "ns");
     }
 
     private static double round(double value, int places) {
