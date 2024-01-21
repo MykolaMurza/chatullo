@@ -67,7 +67,7 @@ public class Tree {
                                 found = true;
                                 previous = branch;
                                 left = left.substring(1);
-                                if (left.length() == 0)
+                                if (left.isEmpty())
                                     break;
                                 t = left.charAt(0);
                                 break;
@@ -78,7 +78,7 @@ public class Tree {
                     }
                 }
 
-                if (left.length() == 0)
+                if (left.isEmpty())
                     continue;
 
                 // Branched off right at the trunk

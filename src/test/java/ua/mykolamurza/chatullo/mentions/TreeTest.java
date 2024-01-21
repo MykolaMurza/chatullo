@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ class TreeTest {
         for (int j = 0; j < entrychars.size(); j++) {
             char entrychar = entrychars.get(j);
             Branch[] branches = base[entrychar];
-
+            AtomicInteger breadth = new AtomicInteger();
             StringBuilder padding = new StringBuilder();
 
             boolean startpadding = true;
@@ -58,11 +59,12 @@ class TreeTest {
 
             padding.append(entrychar);
 
-            List<Integer> additional = new ArrayList<>();
+            // breadth : depth
+            HashMap<Integer, Integer> additional = new HashMap<>();
 
             for (int i = 0; i < branches.length; i++) {
                 Branch branch = branches[i];
-
+                breadth.incrementAndGet();
                 if (branches.length > 1 && i != 0) {
                     padding.append("\n");
                     if (j+1 < entrychars.size())
@@ -84,29 +86,34 @@ class TreeTest {
                 padding.append(branch.c);
                 if (branch.isEnd)
                     padding.append(".");
-                listchar(branch, padding, 6, startpadding, additional);
+                listchar(branch, padding, 6, breadth, startpadding, additional);
 
             }
 
             if (!additional.isEmpty()) {
-                for (int index: additional) {
+                //System.out.println("additional not empty");
+                //System.out.println("additional: " + Arrays.toString(additional.toArray()));
+                String[] split = padding.toString().split("\n");
+                for (int index: additional.keySet()) {
                     int previous = 0;
-                    for (String split: padding.toString().split("\n")) {
-                        if (split.length() <= index)
+                    for (int i = 0; i < additional.get(index) - 1; i++) {
+                        if (split.length <= i)
                             continue;
 
-                        if (split.charAt(index) == ' ') {
+                        if (split[i].charAt(index) == ' ') {
                             padding.setCharAt(index + previous, '│');
                         }
-                        previous += split.length() + 1;
+                        previous += split[i].length() + 1;
                     }
                 }
             }
             System.out.println(padding);
+            if (!additional.isEmpty())
+                System.out.println("breadth: " + (breadth.get()));
         }
     }
 
-    void listchar(Branch previous, StringBuilder padding, int depth, boolean startpadding, List<Integer> additional) {
+    void listchar(Branch previous, StringBuilder padding, int depth, AtomicInteger breadth, boolean startpadding, HashMap<Integer, Integer> additional) {
         if (previous.sub == null)
             return;
 
@@ -122,15 +129,17 @@ class TreeTest {
                     padding.append(" ".repeat(depth));
 
                 if (i + 1 != previous.sub.length) {
+                    System.out.println("11111");
                     padding.append("├──");
-                    if (!additional.contains(depth))
-                        additional.add(depth);
                 } else {
+                    System.out.println("22222");
                     padding.append("└──");
-                    if (previous.sub.length > 2)
-                        if (!additional.contains(depth))
-                            additional.add(depth);
+                    //if (previous.sub.length > 2)
                 }
+                //if (!additional.contains(depth))
+
+                breadth.incrementAndGet();
+                additional.put(breadth.get(), depth);
             } else {
                 padding.append("──");
             }
@@ -141,7 +150,7 @@ class TreeTest {
                 dots++;
             }
 
-            listchar(branch, padding, depth + 3 + dots, startpadding, additional);
+            listchar(branch, padding, depth + 3 + dots, breadth, startpadding, additional);
         }
     }
 
