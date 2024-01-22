@@ -12,9 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
 
-    List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni", "xz");
-    private final AsciiTree tree = new AsciiTree(data);
-    /*
+    //List<String> data = Arrays.asList("Notch", "jeb_", "used", "useful", "usernai", "username1", "username2", "username3", "user", "mykolamurza", "justADeni", "xz");
+
     List<String> data = Arrays.asList("ShadowDragon64", "MysticCrafter", "DiamondRover", "LavaLeaper", "BlazeChaser",
             "ThunderPenguin", "FrostyFox123", "IronWanderer", "JungleWhisperer", "PixelPioneer", "AquaVortex", "EmberEagle", "GalacticNomad",
             "NetherNinjaX", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle", "CreeperCommander", "StarryStitcher", "SilverStriker",
@@ -25,7 +24,9 @@ class TreeTest {
             "PhantomPioneer", "SunlitSorcerer", "DragonDreamer", "GildedGolem", "EmeraldEnigma", "TwilightTinkerer", "QuantumQuill",
             "ObsidianOasis", "LavaLuminary", "EnderEmpress", "CreeperCatalyst", "StarlightSeeker", "IronIgniter", "CelestialCrafter",
             "NetherNomad", "AquaAdventurer", "RubyRogue", "MysticMule", "StormySeeker", "EmberElemental", "PixelPaladin", "LunarLabyrinth");
-    */
+
+    private final AsciiTree tree = new AsciiTree(data);
+
     @Order(3)
     @Test
     void visualize() throws NoSuchFieldException, IllegalAccessException {
@@ -77,10 +78,13 @@ class TreeTest {
                         padding.append(" ");
 
                     if (branches.length == 2) {
+                        additional.put(breadth.get()-1, 3);
                         padding.append("  └──");
                     } else if (i + 1 != branches.length) {
+                        additional.put(breadth.get()-1, 3);
                         padding.append("  ├──");
                     } else {
+                        additional.put(breadth.get()-1, 3);
                         padding.append("  └──");
                     }
                 } else {
@@ -95,25 +99,38 @@ class TreeTest {
             }
 
             if (!additional.isEmpty()) {
-                //System.out.println("additional not empty");
-                //System.out.println("additional: " + Arrays.toString(additional.toArray()));
+                //System.out.println("additional: " + additional);
                 String[] split = padding.toString().split("\n");
-                for (int index: additional.keySet()) {
-                    int previous = 0;
-                    for (int i = 0; i < additional.get(index) - 1; i++) {
-                        if (split.length <= i)
+
+                for (int key: additional.keySet()) {
+                    int depth = additional.get(key);
+
+                    for (int bredth = key-1; bredth >= 0; bredth--) {
+
+                        if (bredth >= split.length)
                             continue;
 
-                        if (split[i].charAt(index) == ' ') {
-                            padding.setCharAt(index + previous, '│');
-                        }
-                        previous += split[i].length() + 1;
+                        String found = split[bredth];
+                        if (found.length() <= depth)
+                            continue;
+
+                        if (found.charAt(depth) != ' ')
+                            break;
+
+                        //int previous = 0;
+                        String[] possearch = padding.toString().split(found);
+                        //if (possearch.length > 1)
+                        int previous = possearch[0].length();
+                        //System.out.println("previous " + previous);
+
+                        if (padding.toString().length() <= previous + depth)
+                            continue;
+
+                        padding.setCharAt(previous + depth, '│');
                     }
                 }
             }
             System.out.println(padding);
-            if (!additional.isEmpty())
-                System.out.println("breadth: " + (breadth.get()));
         }
     }
 
@@ -133,17 +150,19 @@ class TreeTest {
                     padding.append(" ".repeat(depth));
 
                 if (i + 1 != previous.sub.length) {
-                    System.out.println("11111");
+                    //System.out.println("11111");
                     padding.append("├──");
+                    additional.put(breadth.get(), depth);
                 } else {
-                    System.out.println("22222");
+                    //System.out.println("22222");
                     padding.append("└──");
                     //if (previous.sub.length > 2)
+                    additional.put(breadth.get(), depth);
                 }
                 //if (!additional.contains(depth))
 
                 breadth.incrementAndGet();
-                additional.put(breadth.get(), depth);
+                //additional.put(breadth.get(), depth);
             } else {
                 padding.append("──");
             }

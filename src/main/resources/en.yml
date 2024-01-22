@@ -1,0 +1,9 @@
+# Write a message that will be displayed when a player joins or leaves.
+# Write %player% instead of the player's name.
+join: "&6%player% &ejoined the server."
+quit: "&6%player% &eleft the server."
+
+# Error messages
+error:
+  item: "To use global chat, you need to be holding %amount% of redstone."
+  vault: "To use global chat, you need %amount% of money."

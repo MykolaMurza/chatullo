@@ -1,5 +1,17 @@
+localisation: "en"
+
 # Set the radius of local chat.
 radius: 200
+
+# If the player should pay to use global chat
+global-pay:
+  item:
+    enabled: false
+    material: "REDSTONE"
+    amount: 1
+  vault:
+    enabled: false
+    amount: 10
 
 # Both fully support PlaceholderAPI
 # Global chat format
@@ -8,8 +20,15 @@ global-format: "&8[&cG&8]&r &6%player% &e>&r %message%"
 # Local chat format
 local-format: "&8[&aL&8]&r &6%player% &e>&r %message%"
 
-# Write a message that will be displayed when a player joins or leaves.
-# Leave the field blank if you don't want the message to appear.
-# Write %player% instead of the player's name.
-join:
-quit:
+mentions:
+  highlight:
+    enabled: true
+    format: "%%"
+  sound:
+    enabled: true
+    name: BLOCK_NOTE_BLOCK_PLING
+
+# Message on player join/leave
+join: false
+
+quit: false
