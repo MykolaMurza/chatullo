@@ -53,8 +53,7 @@ public class ChatHandler implements Listener {
     }
 
     private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
-        return viewerPlayer.getWorld().equals(player.getWorld())
-                || viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= radius2;
+        return viewerPlayer.getWorld().equals(player.getWorld()) && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= radius2;
     }
 
     private TextComponent formatMessage(Type type, Player player, String message) {
