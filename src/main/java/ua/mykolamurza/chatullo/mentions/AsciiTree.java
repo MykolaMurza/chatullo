@@ -1,21 +1,20 @@
 package ua.mykolamurza.chatullo.mentions;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class Tree {
+public class AsciiTree {
 
-    private Tree() {}
+    public AsciiTree(List<String> input) {
+        construct(input);
+    }
 
     // When no player IGN starts with said char (corresponding to index), it's null
-    public static Branch[][] base = new Branch[123][];
+    private Branch[][] base = new Branch[123][];
 
-    public static void construct(List<String> strings) {
+    private void construct(List<String> strings) {
         Branch[][] newbase = new Branch[123][];
         for (String string: strings) {
             if (string.isEmpty())
@@ -67,8 +66,10 @@ public class Tree {
                                 found = true;
                                 previous = branch;
                                 left = left.substring(1);
-                                if (left.isEmpty())
+                                if (left.isEmpty()) {
+                                    branch.isEnd = true;
                                     break;
+                                }
                                 t = left.charAt(0);
                                 break;
                             }
@@ -123,7 +124,7 @@ public class Tree {
      * @param message Input message to search through.
      * @return Returns true if found a match, false if not.
      */
-    public static boolean contains(String message) {
+    public boolean contains(String message) {
         Branch[] current = null;
         for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
@@ -155,7 +156,7 @@ public class Tree {
      * @param message Input message to search through.
      * @return Returns true if found a match, false if not.
      */
-    public static boolean containsExact(String message) {
+    public boolean containsExact(String message) {
         Branch[] current = null;
         for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
@@ -194,11 +195,11 @@ public class Tree {
      * @return List of long containing start indexes and lengths.
      */
     @NotNull
-    public static List<Long> findMultiple(@NotNull String message) {
+    public List<Integer> findMultiple(@NotNull String message) {
         Branch[] current = null;
         int start = 0;
         int length = 0;
-        List<Long> foundsofar = new ArrayList<>();
+        List<Integer> foundsofar = new ArrayList<>();
         int found = 0;
 
         for (int j = 0; j < message.length(); j++) {
@@ -215,30 +216,28 @@ public class Tree {
                     start = j;
                 }
             } else {
+                boolean success = false;
                 for (Branch branch: current) {
-                    boolean success = false;
                     if (branch.c == c) {
                         success = true;
                         length++;
                         current = branch.sub;
                         if (branch.isEnd) {
                             if (found > 1) {
-                                if ((int)(foundsofar.get(found - 1) >> 32) == start) {
-                                    foundsofar.set(found - 1, (((long)start) << 32) | ((length) & 0xffffffffL));
+                                if ((foundsofar.get(found - 1) >> 16) == start) {
+                                    foundsofar.set(found - 1, (start << 16) | (length) & 0xFFFF);
                                     break;
                                 }
                             }
-                            foundsofar.add((((long)start) << 32) | ((length) & 0xffffffffL));
+                            foundsofar.add(((int) start << 16) | (length & 0xFFFF));
                             //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
                             found++;
                         }
                         break;
                     }
-                    if (!success) {
-                        current = null;
-                        //length = 0;
-                    }
                 }
+                if (!success)
+                    current = null;
             }
         }
         return foundsofar;
@@ -249,7 +248,7 @@ public class Tree {
      * @param message Input message to search through.
      * @return long containing start index and length or 0 if not found.
      */
-    public static long findFirst(@NotNull String message) {
+    public int findFirst(@NotNull String message) {
         //int messagesize = message.length();
         //if (messagesize <= 1)
         //    return 0;
@@ -283,7 +282,7 @@ public class Tree {
                         current = branch.sub;
                         if (branch.isEnd) {
                             //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
-                            return (((long)start) << 32) | ((length) & 0xffffffffL);
+                            return ((int) start << 16) | (length & 0xFFFF);
                         }
                         break;
                     }
@@ -297,15 +296,6 @@ public class Tree {
             }
         }
         return 0;
-    }
-
-    // Do it yourself in place, it will be faster than calling two methods
-    public static int startIndex(long returned) {
-        return (int)(returned >> 32);
-    }
-
-    public static int endIndex(long returned) {
-        return (int) returned;
     }
 
 }

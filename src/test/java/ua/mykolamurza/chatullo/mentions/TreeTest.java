@@ -5,16 +5,16 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
 
-    //List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni", "xz");
+    List<String> data = Arrays.asList("Notch", "jeb_", "user", "used", "useful", "usernai", "username1", "username2", "username3", "mykolamurza", "justADeni", "xz");
+    private final AsciiTree tree = new AsciiTree(data);
+    /*
     List<String> data = Arrays.asList("ShadowDragon64", "MysticCrafter", "DiamondRover", "LavaLeaper", "BlazeChaser",
             "ThunderPenguin", "FrostyFox123", "IronWanderer", "JungleWhisperer", "PixelPioneer", "AquaVortex", "EmberEagle", "GalacticNomad",
             "NetherNinjaX", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle", "CreeperCommander", "StarryStitcher", "SilverStriker",
@@ -25,12 +25,16 @@ class TreeTest {
             "PhantomPioneer", "SunlitSorcerer", "DragonDreamer", "GildedGolem", "EmeraldEnigma", "TwilightTinkerer", "QuantumQuill",
             "ObsidianOasis", "LavaLuminary", "EnderEmpress", "CreeperCatalyst", "StarlightSeeker", "IronIgniter", "CelestialCrafter",
             "NetherNomad", "AquaAdventurer", "RubyRogue", "MysticMule", "StormySeeker", "EmberElemental", "PixelPaladin", "LunarLabyrinth");
-
+    */
     @Order(3)
     @Test
-    void visualize() {
-        Tree.construct(data);
-        Branch[][] base = Tree.base;
+    void visualize() throws NoSuchFieldException, IllegalAccessException {
+        // Use reflection to access the private field 'base'
+        Class<?> treeClass = tree.getClass();
+        Field branchesField = treeClass.getDeclaredField("base");
+        branchesField.setAccessible(true);
+        Branch[][] base = (Branch[][]) branchesField.get(tree);
+
         ArrayList<Character> entrychars = new ArrayList<>();
         for (int i = 0; i <= 122; i++) {
             if (base[i] != null)
@@ -158,7 +162,7 @@ class TreeTest {
     @Test
     void constructColdpath() {
         long start = System.nanoTime();
-        Tree.construct(data);
+        new AsciiTree(data);
         long end = System.nanoTime();
 
         long diff = end - start;
@@ -169,10 +173,10 @@ class TreeTest {
     @Test
     void constructHotpath() {
         for (int i = 0; i < 10_000; i++)
-            Tree.construct(data);
+            new AsciiTree(data);
 
         long start = System.nanoTime();
-        Tree.construct(data);
+        new AsciiTree(data);
         long end = System.nanoTime();
 
         long diff = end - start;
@@ -192,7 +196,6 @@ class TreeTest {
     @Order(4)
     @Test
     void matchtest() {
-        Tree.construct(data);
 
         // Regex matching, inspired by https://www.youtube.com/watch?v=Ldio8oSBPz4
         for (int i = 0; i < messages.length; i++) {
@@ -215,7 +218,7 @@ class TreeTest {
             final String[] split = message.split(" ");
 
             for (final String currentword : split) {
-                if (currentword.length() > 2 && currentword.length() < 17 && Tree.containsExact(currentword)) {
+                if (currentword.length() > 2 && currentword.length() < 17 && tree.containsExact(currentword)) {
                     System.out.println("Tree matched " + currentword + " in message #" + i);
                 }
             }
@@ -225,7 +228,6 @@ class TreeTest {
     @Order(5)
     @Test
     void matchcold() {
-        Tree.construct(data);
 
         HashSet<String> set = new HashSet<>(data);
 
@@ -250,7 +252,7 @@ class TreeTest {
 
             long start1 = System.nanoTime();
             for (final String currentword : split) {
-                if (currentword.length() > 2 && currentword.length() < 17 && Tree.containsExact(currentword)) {
+                if (currentword.length() > 2 && currentword.length() < 17 && tree.containsExact(currentword)) {
                     //list.add("Tree matched");
                 }
             }
@@ -277,25 +279,33 @@ class TreeTest {
 
             long start3 = System.nanoTime();
 
-            long found = Tree.findFirst(message);
-            int last = (int)(found >> 32) + (int)found;
+            long found = tree.findFirst(message);
+
+            //int start = (short)(found >>> 16);
+            //int lenght = (short)(found);
+            //System.out.println("first value: " + start);
+            //System.out.println("second value: " + lenght);
+            int last = 0;//(short)(found >> 16) + (short)found;
+            //int last = (short)(found >>> 16) + (short)(found);
             String left = message;
-            while (last != 0){
+            //System.out.println("last: " + last);
+            //System.out.println("left length: " + left.length() );
+            while ((short)(found) != 0){
                 left = left.substring(last);
                 if (left.length() < 3)
                     break;
 
-                found = Tree.findFirst(left);
+                found = tree.findFirst(left);
                 if (found == 0)
                     break;
 
-                last = (int)(found >> 32) + (int)found;
+                last = (short)(found >> 16) + (short)found;
             }
             long end3 = System.nanoTime();
             firsttreespeed += end3 - start3;
 
             long start5 = System.nanoTime();
-            Tree.findMultiple(message);
+            tree.findMultiple(message);
             long end5 = System.nanoTime();
             manytreespeed += end5 - start5;
         }
@@ -304,7 +314,7 @@ class TreeTest {
         System.out.println("set  split took " + splitsetspeed/1000000 + "ms and " + splitsetspeed%1000000 + "ns");
         System.out.println("tree split took " + splittreespeed/1000000 + "ms and " + splittreespeed%1000000 + "ns");
 
-        // These two also have the disadvantage of finding much more stuff
+        // These two also have the speed nerf of finding much more stuff
         System.out.println("tree first took " + firsttreespeed/1000000 + "ms and " + firsttreespeed%1000000 + "ns");
         System.out.println("tree many  took " + manytreespeed/1000000 + "ms and " + manytreespeed%1000000 + "ns");
     }
