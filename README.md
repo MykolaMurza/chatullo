@@ -30,11 +30,12 @@ They can change the radius of the local chat distance, local and global format. 
 # Set the radius of local chat.
 radius: 200
 
+# All of these support placeholders from PlaceholderAPI if installed
 # Global chat format
-global-format: "&8[&cG&8]&r &7%countries_country% &8| &6%player% &e>&r %message%"
+global-format: "&8[&cG&8]&r &8| &6%player% &e>&r %message%"
 
 # Local chat format
-local-format: "&8[&aL&8]&r &7%countries_country% &8| &6%player% &e>&r %message%"
+local-format: "&8[&aL&8]&r &8| &6%player% &e>&r %message%"
 
 # Write a message that will be displayed when a player joins or leaves.
 # Leave the field blank if you don't want the message to appear.
