@@ -3,6 +3,9 @@ package ua.mykolamurza.chatullo;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
+import ua.mykolamurza.chatullo.listeners.PlayerChat;
+import ua.mykolamurza.chatullo.listeners.PlayerJoin;
+import ua.mykolamurza.chatullo.listeners.PlayerQuit;
 
 /**
  * Local and global chat system. Pay to write to the server.
@@ -19,9 +22,11 @@ public final class Chatullo extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
-        Bukkit.getLogger().info("Start Chatullo.");
+        //Bukkit.getLogger().info("Start Chatullo.");
         saveDefaultConfig();
-        getServer().getPluginManager().registerEvents(new ChatHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerChat(ChatHandler.getInstance()), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoin(ChatHandler.getInstance()), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuit(ChatHandler.getInstance()), this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
             getLogger().warning("PlaceholderAPI not found, functionality will be missing.");
@@ -32,6 +37,6 @@ public final class Chatullo extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getLogger().info("Stop Chatullo.");
+        //Bukkit.getLogger().info("Stop Chatullo.");
     }
 }

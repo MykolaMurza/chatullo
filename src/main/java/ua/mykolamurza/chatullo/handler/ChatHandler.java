@@ -6,45 +6,38 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import ua.mykolamurza.chatullo.Chatullo;
-import ua.mykolamurza.chatullo.mentions.Branch;
 
 /**
  * @author Mykola Murza
  */
-public class ChatHandler implements Listener {
+public class ChatHandler {
 
-    private static final int radius2 = (int) Math.pow(Chatullo.plugin.getConfig().getInt("radius"), 2);
-    private static final String globalformat = Chatullo.plugin.getConfig().getString("global-format");
-    private static final String localformat = Chatullo.plugin.getConfig().getString("local-format");
-    private static final String join = Chatullo.plugin.getConfig().getString("join");
-    private static final String quit = Chatullo.plugin.getConfig().getString("quit");
-    public static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private ChatHandler(){}
 
-    @EventHandler
-    public void onPlayerChat(AsyncChatEvent event) {
-        Player player = event.getPlayer();
-        TextComponent message = (TextComponent) event.message();
+    private static ChatHandler instance = null;
 
-        if (message.content().startsWith("!")) {
-            writeToGlobalChat(event, player, message.content().substring(1));
-        } else {
-            writeToLocalChat(event, player, message.content());
+    public static ChatHandler getInstance() {
+        if (instance == null) {
+            instance = new ChatHandler();
         }
-
-        event.setCancelled(true);
+        return instance;
     }
 
-    private void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
+    private final int radius2 = (int) Math.pow(Chatullo.plugin.getConfig().getInt("radius"), 2);
+    private final String globalformat = Chatullo.plugin.getConfig().getString("global-format");
+    private final String localformat = Chatullo.plugin.getConfig().getString("local-format");
+    public final String join = Chatullo.plugin.getConfig().getString("join");
+    public final String quit = Chatullo.plugin.getConfig().getString("quit");
+
+    private final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+
+    public void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().forEach(recipient ->
                 recipient.sendMessage(formatMessage(Type.GLOBAL, player, message)));
     }
 
-    private void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
+    public void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().stream()
                 .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
                         || audience instanceof ConsoleCommandSender)
@@ -56,7 +49,7 @@ public class ChatHandler implements Listener {
         return viewerPlayer.getWorld().equals(player.getWorld()) && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= radius2;
     }
 
-    private TextComponent formatMessage(Type type, Player player, String message) {
+    public TextComponent formatMessage(Type type, Player player, String message) {
         String formatted = switch (type){
             case GLOBAL -> globalformat;
             case LOCAL -> localformat;
@@ -66,23 +59,5 @@ public class ChatHandler implements Listener {
             return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
         else
             return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
-    }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        if (join == null) {
-            event.joinMessage(null);
-        } else {
-            event.joinMessage(formatMessage(Type.OTHER, event.getPlayer(), join));
-        }
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        if (quit == null) {
-            event.quitMessage(null);
-        } else {
-            event.quitMessage(formatMessage(Type.OTHER, event.getPlayer(), quit));
-        }
     }
 }
