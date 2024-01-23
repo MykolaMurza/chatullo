@@ -101,7 +101,7 @@ public class ChatHandler {
                 }
 
                 if (Config.settings.getBoolean("mentions.actionbar.enabled")) {
-                    recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
+                    recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("actionbar")));
                 }
             }
         }

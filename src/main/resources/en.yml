@@ -3,8 +3,7 @@
 join: "&6%player% &ejoined the server."
 quit: "&6%player% &eleft the server."
 
-mentions:
-  actionbar: "&eYou were mentioned in the chat."
+actionbar: "&eYou were mentioned in the chat."
 
 reloaded: "&eConfiguration reloaded."
 
