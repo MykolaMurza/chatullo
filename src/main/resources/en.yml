@@ -6,8 +6,10 @@ quit: "&6%player% &eleft the server."
 mentions:
   actionbar: "&eYou were mentioned in the chat."
 
+reloaded: "&eConfiguration reloaded."
+
 # Error messages
 error:
   item: "&cTo use global chat, you need to be holding &7%amount% &cof redstone."
   vault: "&cTo use global chat, you need &7%amount% &cof money."
-  permissions: "&cInsufficient permissions."
+  permission: "&cInsufficient permissions."

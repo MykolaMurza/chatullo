@@ -1,9 +1,5 @@
 # Chatullo - A Minecraft Local and Global Chat Plugin
 
-# Forked by justADeni
-Forked this plugin for personal purposes, removed redstone payments, added soft-dependency on PlaceholderAPI,
-added local and global formats to config, added legacy color formatting support, removed localization, improved distance calculation.
-
 ## Overview
 
 Chatullo is a Minecraft plugin that introduces global and local chat into the game, instead of just one global. The player can freely write to the local chat, which is visible by default within a radius of 200 meters from the player.
@@ -16,7 +12,13 @@ Use `!` at the start of the message to wrote to the global chat. Don't start you
 
 ### Commands
 
-The plugin doesn't have any commands.
+`/chatullo reload` to reload the configuration and localisation files
+
+### Permissions
+
+- `chatullo.admin` to reload config, false by default
+- `chatullo.global` to chat globally, true by default
+- `chatullo.local` to chat locally, true by default
 
 ## Installation
 
@@ -26,21 +28,46 @@ To install the plugin, download the latest release and place the `.jar` file int
 
 Server administrators have the file `config.yml` in the plugin's directory.
 They can change the radius of the local chat distance, local and global format. The file also has keys `join` and `quit`, they are responsible for the message that is displayed in the chat when the player enters or leaves the server. 
-```
+```yaml
+# Which localisation file should the plugin use
+localisation: "en"
+
 # Set the radius of local chat.
 radius: 200
 
+# If the player should pay to use global chat
+global-pay:
+  item:
+    enabled: false
+    material: "REDSTONE"
+    amount: 1
+  vault:
+    enabled: false
+    amount: 10
+
+# Both fully support PlaceholderAPI
 # Global chat format
-global-format: "&8[&cG&8]&r &7%countries_country% &8| &6%player% &e>&r %message%"
+global-format: "&8[&cG&8]&r &6%player% &e>&r %message%"
 
 # Local chat format
-local-format: "&8[&aL&8]&r &7%countries_country% &8| &6%player% &e>&r %message%"
+local-format: "&8[&aL&8]&r &6%player% &e>&r %message%"
 
-# Write a message that will be displayed when a player joins or leaves.
-# Leave the field blank if you don't want the message to appear.
-# Write %player% instead of the player's name.
-join:
-quit:
+mentions:
+  enabled: true
+  highlight:
+    enabled: true
+    format: "&e%player%&r"
+  sound:
+    enabled: true
+    name: BLOCK_NOTE_BLOCK_PLING
+    volume: 0.7
+    pitch: 1.0
+  actionbar:
+    enabled: true
+
+# Message on player join/leave
+join: false
+quit: false
 ```
 
 ## Contributing

@@ -1,3 +1,4 @@
+# Which localisation file should the plugin use
 localisation: "en"
 
 # Set the radius of local chat.
@@ -35,5 +36,4 @@ mentions:
 
 # Message on player join/leave
 join: false
-
 quit: false

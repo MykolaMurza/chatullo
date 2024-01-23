@@ -98,13 +98,13 @@ public class ChatHandler {
 
                 mentionedAlready.add(word.hashCode());
 
-                if (Config.settings.getBoolean("mentions.sound.enabled")) {
+                /*if (Config.settings.getBoolean("mentions.sound.enabled")) {
                     org.bukkit.Sound sound = org.bukkit.Sound.valueOf(Config.settings.getString("mentions.sound.name"));
                     recipient.playSound((net.kyori.adventure.sound.Sound) Sound.sound((Key) sound.key(), Sound.Source.PLAYER, (float) Config.settings.getDouble("mentions.sound.volume"), (float) Config.settings.getDouble("mentions.sound.pitch")));
                 }
                 if (Config.settings.getBoolean("mentions.sound.actionbar")) {
                     recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
-                }
+                }*/
             }
         }
 
