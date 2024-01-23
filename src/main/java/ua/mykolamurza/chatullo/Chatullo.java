@@ -4,10 +4,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import ua.mykolamurza.chatullo.command.Command;
 import ua.mykolamurza.chatullo.command.TabComplete;
+import ua.mykolamurza.chatullo.configuration.Config;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
 import ua.mykolamurza.chatullo.listeners.PlayerChat;
 import ua.mykolamurza.chatullo.listeners.PlayerJoin;
 import ua.mykolamurza.chatullo.listeners.PlayerQuit;
+
+import java.io.IOException;
 
 /**
  * Local and global chat system. Pay to write to the server.
@@ -26,6 +29,7 @@ public final class Chatullo extends JavaPlugin {
 
         //Bukkit.getLogger().info("Start Chatullo.");
         saveDefaultConfig();
+        Config.initialize();
         getServer().getPluginManager().registerEvents(new PlayerChat(ChatHandler.getInstance()), this);
         getServer().getPluginManager().registerEvents(new PlayerJoin(ChatHandler.getInstance()), this);
         getServer().getPluginManager().registerEvents(new PlayerQuit(ChatHandler.getInstance()), this);
