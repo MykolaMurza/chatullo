@@ -224,7 +224,8 @@ public class AsciiTree {
                         current = branch.sub;
                         if (branch.isEnd) {
                             if (found > 1) {
-                                // In case we matched a shorter word inside a longer word previously
+                                // In case we matched a shorter word inside a longer word previously, but the longer word matches
+                                // i.e. we matched 'exam' in 'example' but now we are matching 'example' so we should replace the previous match
                                 int previous = foundsofar.get(found - 1);
                                 if ((previous >> 16) == start && ((short)previous) < length) {
                                     foundsofar.set(found - 1, (start << 16) | (length) & 0xFFFF);
@@ -232,7 +233,6 @@ public class AsciiTree {
                                 }
                             }
                             foundsofar.add(((int) start << 16) | (length & 0xFFFF));
-                            //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
                             found++;
                         }
                         break;
@@ -251,10 +251,6 @@ public class AsciiTree {
      * @return long containing start index and length or 0 if not found.
      */
     public int findFirst(@NotNull String message) {
-        //int messagesize = message.length();
-        //if (messagesize <= 1)
-        //    return 0;
-
         Branch[] current = null;
         int start = 0;
         int length = 0;
@@ -272,9 +268,7 @@ public class AsciiTree {
                     current = base[c];
                     start = j;
                     length = 1;
-                } /*else {
-                    length = 0;
-                }*/
+                }
             } else {
                 boolean found = false;
                 for (Branch branch: current) {
@@ -283,7 +277,6 @@ public class AsciiTree {
                         length++;
                         current = branch.sub;
                         if (branch.isEnd) {
-                            //System.out.println("start: " + start + " length: " + length + " word: " + message.substring(start, start+length));
                             return ((int) start << 16) | (length & 0xFFFF);
                         }
                         break;
@@ -291,7 +284,6 @@ public class AsciiTree {
                 }
                 if (!found) {
                     start = 0;
-                    //length = 0;
                     current = null;
                 }
 

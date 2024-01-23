@@ -22,7 +22,7 @@ public class Command implements CommandExecutor {
             return true;
         }
 
-        if (sender instanceof ConsoleCommandSender || (sender.isOp() || sender.hasPermission("chatullo.admin"))) {
+        if (sender instanceof ConsoleCommandSender || (sender.isOp() || sender.hasPermission("chatullo.reload"))) {
             Config.reload();
             sender.sendMessage(chatHandler.formatMessage(Config.messages.getString("reloaded")));
         } else {

@@ -16,7 +16,8 @@ Use `!` at the start of the message to wrote to the global chat. Don't start you
 
 ### Permissions
 
-- `chatullo.admin` to reload config, false by default
+- `chatullo.reload` to reload config, false by default
+- `chatullo.bypass` to bypass global chat requirements, false by default
 - `chatullo.global` to chat globally, true by default
 - `chatullo.local` to chat locally, true by default
 
@@ -43,7 +44,7 @@ global-pay:
     amount: 1
   vault:
     enabled: false
-    amount: 10
+    amount: 10.0
 
 # Both fully support PlaceholderAPI
 # Global chat format
@@ -59,7 +60,7 @@ mentions:
     format: "&e%player%&r"
   sound:
     enabled: true
-    name: BLOCK_NOTE_BLOCK_PLING
+    name: "block.note_block.pling"
     volume: 0.7
     pitch: 1.0
   actionbar:

@@ -12,7 +12,7 @@ global-pay:
     amount: 1
   vault:
     enabled: false
-    amount: 10
+    amount: 10.0
 
 # Both fully support PlaceholderAPI
 # Global chat format
@@ -29,8 +29,8 @@ mentions:
   sound:
     enabled: true
     name: "block.note_block.pling"
-    volume: 0.7
-    pitch: 1.0
+    volume: 0.5
+    pitch: 2.0
   actionbar:
     enabled: true
 

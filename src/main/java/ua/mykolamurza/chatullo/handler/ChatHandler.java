@@ -4,7 +4,6 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.platform.facet.Facet;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -15,7 +14,6 @@ import ua.mykolamurza.chatullo.Chatullo;
 import ua.mykolamurza.chatullo.configuration.Config;
 import ua.mykolamurza.chatullo.mentions.AsciiTree;
 
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -105,7 +103,6 @@ public class ChatHandler {
                 if (Config.settings.getBoolean("mentions.actionbar.enabled")) {
                     recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
                 }
-                //Chatullo.plugin.getLogger().info("debug: actionbar + sound");
             }
         }
 
