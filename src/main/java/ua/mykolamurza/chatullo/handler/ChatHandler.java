@@ -4,6 +4,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.platform.facet.Facet;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -70,14 +71,12 @@ public class ChatHandler {
             return message;
 
         String formatted = message;
-
+        int additional = 0;
         List<Integer> foundIndexes = tree.findMultiple(formatted);
-        HashSet<Integer> mentionedAlready = new HashSet<>();
         if (!foundIndexes.isEmpty()) {
             for (int index : foundIndexes) {
-                int start = (short) (index >> 16);
-                int length = (short) (index);
-                int end = start + length;
+                int start = (index >> 16) + additional;
+                int end = start + (short) (index);
                 String word = formatted.substring(start, end);
 
                 if (word.equals(player.getName()))
@@ -88,24 +87,25 @@ public class ChatHandler {
 
                 if (Config.settings.getBoolean("mentions.highlight.enabled")) {
                     String replaced = Config.settings.getString("mentions.highlight.format").replace("%player%", word);
-                    formatted = formatted.substring(0,start) + replaced + formatted.substring(end);
+                    String intermediate = formatted.substring(0,start) + replaced + formatted.substring(end);
+
+                    // We have to account for the fact that formatting shifts indexes around
+                    additional += intermediate.length() - formatted.length();
+                    formatted = intermediate;
                 }
-
-                if (mentionedAlready.contains(word.hashCode()))
-                    continue;
-
-                mentionedAlready.add(word.hashCode());
 
                 if (Config.settings.getBoolean("mentions.sound.enabled")) {
                     float volume = (float) Config.settings.getDouble("mentions.sound.volume");
                     float pitch = (float) Config.settings.getDouble("mentions.sound.pitch");
                     String name = Config.settings.getString("mentions.sound.name");
-                    Sound sound = Sound.sound(Key.key(name), Sound.Source.MUSIC, volume, pitch);
+                    Sound sound = Sound.sound(Key.key(name), Sound.Source.BLOCK, volume, pitch);
                     recipient.playSound(sound);
                 }
-                if (Config.settings.getBoolean("mentions.sound.actionbar")) {
+
+                if (Config.settings.getBoolean("mentions.actionbar.enabled")) {
                     recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
                 }
+                //Chatullo.plugin.getLogger().info("debug: actionbar + sound");
             }
         }
 

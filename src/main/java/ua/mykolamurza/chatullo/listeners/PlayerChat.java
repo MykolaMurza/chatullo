@@ -22,6 +22,7 @@ public class PlayerChat implements Listener {
 
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
+        event.setCancelled(true);
         Player player = event.getPlayer();
         TextComponent message = (TextComponent) event.message();
 
@@ -66,8 +67,6 @@ public class PlayerChat implements Listener {
 
             chatHandler.writeToLocalChat(event, player, message.content());
         }
-
-        event.setCancelled(true);
     }
 
 }

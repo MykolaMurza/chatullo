@@ -224,7 +224,9 @@ public class AsciiTree {
                         current = branch.sub;
                         if (branch.isEnd) {
                             if (found > 1) {
-                                if ((foundsofar.get(found - 1) >> 16) == start) {
+                                // In case we matched a shorter word inside a longer word previously
+                                int previous = foundsofar.get(found - 1);
+                                if ((previous >> 16) == start && ((short)previous) < length) {
                                     foundsofar.set(found - 1, (start << 16) | (length) & 0xFFFF);
                                     break;
                                 }
