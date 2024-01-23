@@ -12,4 +12,5 @@ reloaded: "&eConfiguration reloaded."
 error:
   item: "&cTo use global chat, you need to be holding &7%amount% &cof redstone."
   vault: "&cTo use global chat, you need &7%amount% &cof money."
+  args: "&cInvalid arguments."
   permission: "&cInsufficient permissions."

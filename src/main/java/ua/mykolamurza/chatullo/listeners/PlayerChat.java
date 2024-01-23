@@ -39,13 +39,13 @@ public class PlayerChat implements Listener {
                     item = player.getInventory().getItem(40);
 
                 if (item == null) {
-                    player.sendMessage(chatHandler.formatMessage(MessageType.OTHER, player,
+                    player.sendMessage(chatHandler.formatMessage(
                             Config.messages.getString("error.item").replace("%amount%", String.valueOf(Config.settings.getInt("global-pay.item.amount")))));
                     return;
                 }
 
                 if (item.getAmount() < Config.settings.getInt("global-pay.item.amount")) {
-                    player.sendMessage(chatHandler.formatMessage(MessageType.OTHER, player,
+                    player.sendMessage(chatHandler.formatMessage(
                             Config.messages.getString("error.item").replace("%amount%", String.valueOf(Config.settings.getInt("global-pay.item.amount")))));
                     return;
                 }

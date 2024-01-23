@@ -124,6 +124,10 @@ public class ChatHandler {
             return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
     }
 
+    public TextComponent formatMessage(String message) {
+        return LEGACY.deserialize(message);
+    }
+
     private static int square(int input){
         return input*input;
     }

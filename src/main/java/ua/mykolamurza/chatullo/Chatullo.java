@@ -33,7 +33,7 @@ public final class Chatullo extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerChat(ChatHandler.getInstance()), this);
         getServer().getPluginManager().registerEvents(new PlayerJoin(ChatHandler.getInstance()), this);
         getServer().getPluginManager().registerEvents(new PlayerQuit(ChatHandler.getInstance()), this);
-        getCommand("chatullo").setExecutor(new Command());
+        getCommand("chatullo").setExecutor(new Command(ChatHandler.getInstance()));
         getCommand("chatullo").setTabCompleter(new TabComplete());
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
