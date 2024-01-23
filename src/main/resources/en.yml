@@ -3,7 +3,11 @@
 join: "&6%player% &ejoined the server."
 quit: "&6%player% &eleft the server."
 
+mentions:
+  actionbar: "&eYou were mentioned in the chat."
+
 # Error messages
 error:
-  item: "To use global chat, you need to be holding %amount% of redstone."
-  vault: "To use global chat, you need %amount% of money."
+  item: "&cTo use global chat, you need to be holding &7%amount% &cof redstone."
+  vault: "&cTo use global chat, you need &7%amount% &cof money."
+  permissions: "&cInsufficient permissions."

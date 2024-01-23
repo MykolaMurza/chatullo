@@ -2,14 +2,26 @@ package ua.mykolamurza.chatullo.handler;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.libs.kyori.adventure.key.Key;
+import me.clip.placeholderapi.libs.kyori.adventure.sound.Sound;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ua.mykolamurza.chatullo.Chatullo;
+import ua.mykolamurza.chatullo.configuration.Config;
+import ua.mykolamurza.chatullo.mentions.AsciiTree;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Mykola Murza
+ * @author justADeni
  */
 public class ChatHandler {
 
@@ -24,17 +36,16 @@ public class ChatHandler {
         return instance;
     }
 
-    private final int radius2 = (int) Math.pow(Chatullo.plugin.getConfig().getInt("radius"), 2);
-    private final String globalformat = Chatullo.plugin.getConfig().getString("global-format");
-    private final String localformat = Chatullo.plugin.getConfig().getString("local-format");
-    public final String join = Chatullo.plugin.getConfig().getString("join");
-    public final String quit = Chatullo.plugin.getConfig().getString("quit");
-
     private final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private AsciiTree tree = null;
+
+    public void updateTree() {
+        tree = new AsciiTree(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
+    }
 
     public void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().forEach(recipient ->
-                recipient.sendMessage(formatMessage(Type.GLOBAL, player, message)));
+                recipient.sendMessage(formatMessage(MessageType.GLOBAL, player, formatMentions(player, recipient, message))));
     }
 
     public void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
@@ -42,22 +53,78 @@ public class ChatHandler {
                 .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
                         || audience instanceof ConsoleCommandSender)
                 .forEach(recipient ->
-                        recipient.sendMessage(formatMessage(Type.LOCAL, player, message)));
+                        recipient.sendMessage(formatMessage(MessageType.LOCAL, player, formatMentions(player, recipient, message))));
     }
 
     private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
-        return viewerPlayer.getWorld().equals(player.getWorld()) && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= radius2;
+        return viewerPlayer.getWorld().equals(player.getWorld())
+                && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= square(Config.settings.getInt("radius"));
     }
 
-    public TextComponent formatMessage(Type type, Player player, String message) {
+    private String formatMentions(Player player, Audience recipient, String message) {
+        if (recipient instanceof ConsoleCommandSender)
+            return message;
+
+        if (recipient == player)
+            return message;
+
+        if (!Config.settings.getBoolean("mentions.enabled"))
+            return message;
+
+        String formatted = message;
+
+        List<Integer> foundIndexes = tree.findMultiple(formatted);
+        HashSet<Integer> mentionedAlready = new HashSet<>();
+        if (!foundIndexes.isEmpty()) {
+            for (int index : foundIndexes) {
+                int start = (short) (index >> 16);
+                int length = (short) (index);
+                int end = start + length;
+                String word = formatted.substring(start, end);
+
+                if (word.equals(player.getName()))
+                    continue;
+
+                if (!word.equals(((Player) recipient).getName()))
+                    continue;
+
+                if (Config.settings.getBoolean("mentions.highlight.enabled")) {
+                    String replaced = Config.settings.getString("mentions.highlight.format").replace("%player%", word);
+                    formatted = formatted.substring(0,start) + replaced + formatted.substring(end);
+                }
+
+                if (mentionedAlready.contains(word.hashCode()))
+                    continue;
+
+                mentionedAlready.add(word.hashCode());
+
+                if (Config.settings.getBoolean("mentions.sound.enabled")) {
+                    org.bukkit.Sound sound = org.bukkit.Sound.valueOf(Config.settings.getString("mentions.sound.name"));
+                    recipient.playSound((net.kyori.adventure.sound.Sound) Sound.sound((Key) sound.key(), Sound.Source.PLAYER, (float) Config.settings.getDouble("mentions.sound.volume"), (float) Config.settings.getDouble("mentions.sound.pitch")));
+                }
+                if (Config.settings.getBoolean("mentions.sound.actionbar")) {
+                    recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
+                }
+            }
+        }
+
+        return formatted;
+    }
+
+    public TextComponent formatMessage(MessageType type, Player player, String message) {
         String formatted = switch (type){
-            case GLOBAL -> globalformat;
-            case LOCAL -> localformat;
+            case GLOBAL -> Config.settings.getString("global-format");
+            case LOCAL -> Config.settings.getString("local-format");
             case OTHER -> message;
         };
+
         if (Chatullo.papi)
             return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
         else
             return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
+    }
+
+    private static int square(int input){
+        return input*input;
     }
 }

@@ -300,15 +300,8 @@ class TreeTest {
 
             long found = tree.findFirst(message);
 
-            //int start = (short)(found >>> 16);
-            //int lenght = (short)(found);
-            //System.out.println("first value: " + start);
-            //System.out.println("second value: " + lenght);
-            int last = 0;//(short)(found >> 16) + (short)found;
-            //int last = (short)(found >>> 16) + (short)(found);
+            int last = 0;
             String left = message;
-            //System.out.println("last: " + last);
-            //System.out.println("left length: " + left.length() );
             while ((short)(found) != 0){
                 left = left.substring(last);
                 if (left.length() < 3)
@@ -338,8 +331,4 @@ class TreeTest {
         System.out.println("tree many  took " + manytreespeed/1000000 + "ms and " + manytreespeed%1000000 + "ns");
     }
 
-    private static double round(double value, int places) {
-        double scale = Math.pow(10, places);
-        return Math.round(value * scale) / scale;
-    }
 }

@@ -3,6 +3,16 @@ version: '${project.version}'
 main: ua.mykolamurza.chatullo.Chatullo
 api-version: '1.20'
 softdepend: [PlaceholderAPI]
+permissions:
+  chatullo.admin:
+    description: Allows /chatullo reload command.
+    default: false
+  chatullo.local:
+    description: Allows local chat.
+    default: true
+  chatullo.global:
+    description: Allows global chat.
+    default: true
 commands:
   chatullo:
-    description: used to reload configuration
+    description: Used to reload configuration

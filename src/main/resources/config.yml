@@ -21,12 +21,17 @@ global-format: "&8[&cG&8]&r &6%player% &e>&r %message%"
 local-format: "&8[&aL&8]&r &6%player% &e>&r %message%"
 
 mentions:
+  enabled: true
   highlight:
     enabled: true
-    format: "%%"
+    format: "&e%player%&r"
   sound:
     enabled: true
     name: BLOCK_NOTE_BLOCK_PLING
+    volume: 0.7
+    pitch: 1.0
+  actionbar:
+    enabled: true
 
 # Message on player join/leave
 join: false
