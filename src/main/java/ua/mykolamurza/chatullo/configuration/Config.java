@@ -34,7 +34,7 @@ public class Config {
                 File file = new File(datafolder.getPath() + "/" + e.getName());
 
                 if (!file.exists()) {
-                    URL url = Chatullo.plugin.getClass().getResource("/${e.name}");
+                    URL url = Chatullo.plugin.getClass().getResource("/" + e.getName());
                     FileUtils.copyURLToFile(url, file);
                 }
 

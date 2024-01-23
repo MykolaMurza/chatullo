@@ -1,14 +1,11 @@
 package ua.mykolamurza.chatullo.command;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ua.mykolamurza.chatullo.configuration.Config;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
-import ua.mykolamurza.chatullo.handler.MessageType;
 
 public class Command implements CommandExecutor {
 

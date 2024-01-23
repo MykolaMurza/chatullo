@@ -28,7 +28,7 @@ mentions:
     format: "&e%player%&r"
   sound:
     enabled: true
-    name: BLOCK_NOTE_BLOCK_PLING
+    name: "block.note_block.pling"
     volume: 0.7
     pitch: 1.0
   actionbar:

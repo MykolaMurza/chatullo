@@ -26,7 +26,7 @@ public class PlayerChat implements Listener {
         TextComponent message = (TextComponent) event.message();
 
         if (message.content().startsWith("!")) {
-            if (!player.hasPermission("chatullo.global")){
+            if (!player.hasPermission("chatullo.global") && !player.isOp()){
                 player.sendMessage(chatHandler.formatMessage(MessageType.OTHER, player, Config.messages.getString("error.permission")));
                 return;
             }
@@ -59,7 +59,7 @@ public class PlayerChat implements Listener {
 
             chatHandler.writeToGlobalChat(event, player, message.content().substring(1));
         } else {
-            if (!player.hasPermission("chatullo.local")){
+            if (!player.hasPermission("chatullo.local") && !player.isOp()){
                 player.sendMessage(chatHandler.formatMessage(MessageType.OTHER, player, Config.messages.getString("error.permission")));
                 return;
             }

@@ -2,10 +2,9 @@ package ua.mykolamurza.chatullo.handler;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.libs.kyori.adventure.key.Key;
-import me.clip.placeholderapi.libs.kyori.adventure.sound.Sound;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -15,7 +14,6 @@ import ua.mykolamurza.chatullo.Chatullo;
 import ua.mykolamurza.chatullo.configuration.Config;
 import ua.mykolamurza.chatullo.mentions.AsciiTree;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -98,13 +96,16 @@ public class ChatHandler {
 
                 mentionedAlready.add(word.hashCode());
 
-                /*if (Config.settings.getBoolean("mentions.sound.enabled")) {
-                    org.bukkit.Sound sound = org.bukkit.Sound.valueOf(Config.settings.getString("mentions.sound.name"));
-                    recipient.playSound((net.kyori.adventure.sound.Sound) Sound.sound((Key) sound.key(), Sound.Source.PLAYER, (float) Config.settings.getDouble("mentions.sound.volume"), (float) Config.settings.getDouble("mentions.sound.pitch")));
+                if (Config.settings.getBoolean("mentions.sound.enabled")) {
+                    float volume = (float) Config.settings.getDouble("mentions.sound.volume");
+                    float pitch = (float) Config.settings.getDouble("mentions.sound.pitch");
+                    String name = Config.settings.getString("mentions.sound.name");
+                    Sound sound = Sound.sound(Key.key(name), Sound.Source.MUSIC, volume, pitch);
+                    recipient.playSound(sound);
                 }
                 if (Config.settings.getBoolean("mentions.sound.actionbar")) {
                     recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("mentions.actionbar")));
-                }*/
+                }
             }
         }
 
