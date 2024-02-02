@@ -1,103 +1,132 @@
 package ua.mykolamurza.chatullo.handler;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import ua.mykolamurza.chatullo.Chatullo;
+import ua.mykolamurza.chatullo.configuration.Config;
+import ua.mykolamurza.chatullo.mentions.AsciiTree;
 
-import static ua.mykolamurza.chatullo.config.ChatConfig.*;
-import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getJoin;
-import static ua.mykolamurza.chatullo.config.JoinQuitMessageConfig.getQuit;
-import static ua.mykolamurza.chatullo.config.LocalizationConfig.getBundledText;
+import java.util.List;
 
 /**
  * @author Mykola Murza
+ * @author justADeni
  */
-public class ChatHandler implements Listener {
-    @EventHandler
-    public void onPlayerChat(AsyncChatEvent event) {
-        Player player = event.getPlayer();
-        TextComponent message = (TextComponent) event.message();
+public class ChatHandler {
 
-        if (message.content().startsWith("!")) {
-            if (player.getInventory().getItemInMainHand().getType() == Material.valueOf(getItemToPay())
-                    && player.getInventory().getItemInMainHand().getAmount() >= getAmountToPay()) {
-                writeToGlobalChat(event, player, message.content().substring(1));
-            } else {
-                informPlayerToTakeRedStoneBeforeWriteToGlobalChar(player);
-            }
-        } else {
-            writeToLocalChat(event, player, message.content());
+    private ChatHandler(){}
+
+    private static ChatHandler instance = null;
+
+    public static ChatHandler getInstance() {
+        if (instance == null) {
+            instance = new ChatHandler();
         }
-
-        event.setCancelled(true);
+        return instance;
     }
 
-    private void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
+    private final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private AsciiTree tree = null;
+
+    public void updateTree() {
+        tree = new AsciiTree(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
+    }
+
+    public void writeToGlobalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().forEach(recipient ->
-                recipient.sendMessage(formatMessage("[G] ", NamedTextColor.RED, player, message)));
-        player.getInventory().getItemInMainHand().setAmount(
-                player.getInventory().getItemInMainHand().getAmount() - getAmountToPay());
+                recipient.sendMessage(formatMessage(MessageType.GLOBAL, player, formatMentions(player, recipient, message))));
     }
 
-    private void informPlayerToTakeRedStoneBeforeWriteToGlobalChar(Player player) {
-        player.sendMessage(Component.text(String.format(getBundledText("take-redstone"), getAmountToPay()),
-                NamedTextColor.GRAY, TextDecoration.ITALIC));
-    }
-
-    private void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
+    public void writeToLocalChat(AsyncChatEvent event, Player player, String message) {
         event.viewers().stream()
                 .filter(audience -> audience instanceof Player && isPlayerHearLocalChat(player, (Player) audience)
                         || audience instanceof ConsoleCommandSender)
                 .forEach(recipient ->
-                        recipient.sendMessage(formatMessage("[L] ", NamedTextColor.GREEN, player, message)));
+                        recipient.sendMessage(formatMessage(MessageType.LOCAL, player, formatMentions(player, recipient, message))));
     }
 
     private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
         return viewerPlayer.getWorld().equals(player.getWorld())
-                || viewerPlayer.getLocation().distance(player.getLocation()) <= getLocalChatDistance();
+                && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= square(Config.settings.getInt("radius"));
     }
 
-    private TextComponent.Builder formatMessage(String suffix, NamedTextColor suffixColor,
-                                                Player player, String message) {
-        return Component.text()
-                .append(Component.text(suffix, suffixColor, TextDecoration.BOLD))
-                .append(Component.text(player.getName(), NamedTextColor.YELLOW))
-                .append(Component.text(": "))
-                .append(Component.text(message));
-    }
+    private String formatMentions(Player player, Audience recipient, String message) {
+        if (recipient instanceof ConsoleCommandSender)
+            return message;
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        if (getJoin() == null) {
-            event.joinMessage(null);
-        } else {
-            if (getJoin().contains("%s")) {
-                event.joinMessage(Component.text(String.format(getJoin(), event.getPlayer().getName())));
-            } else {
-                event.joinMessage(Component.text(getJoin()));
+        if (recipient == player)
+            return message;
+
+        if (!Config.settings.getBoolean("mentions.enabled"))
+            return message;
+
+        String formatted = message;
+        int additional = 0;
+        List<Integer> foundIndexes = tree.findMultiple(formatted);
+        if (!foundIndexes.isEmpty()) {
+            for (int index : foundIndexes) {
+                int start = (index >> 16) + additional;
+                int end = start + (short) (index);
+                String word = formatted.substring(start, end);
+
+                if (word.equals(player.getName()))
+                    continue;
+
+                if (!word.equals(((Player) recipient).getName()))
+                    continue;
+
+                if (Config.settings.getBoolean("mentions.highlight.enabled")) {
+                    String replaced = Config.settings.getString("mentions.highlight.format").replace("%player%", word);
+                    String intermediate = formatted.substring(0,start) + replaced + formatted.substring(end);
+
+                    // We have to account for the fact that formatting shifts indexes around
+                    additional += intermediate.length() - formatted.length();
+                    formatted = intermediate;
+                }
+
+                if (Config.settings.getBoolean("mentions.sound.enabled")) {
+                    float volume = (float) Config.settings.getDouble("mentions.sound.volume");
+                    float pitch = (float) Config.settings.getDouble("mentions.sound.pitch");
+                    String name = Config.settings.getString("mentions.sound.name");
+                    Sound sound = Sound.sound(Key.key(name), Sound.Source.BLOCK, volume, pitch);
+                    recipient.playSound(sound);
+                }
+
+                if (Config.settings.getBoolean("mentions.actionbar.enabled")) {
+                    recipient.sendActionBar(LEGACY.deserialize(Config.messages.getString("actionbar")));
+                }
             }
         }
+
+        return formatted;
     }
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        if (getQuit() == null) {
-            event.quitMessage(null);
-        } else {
-            if (getQuit().contains("%s")) {
-                event.quitMessage(Component.text(String.format(getQuit(), event.getPlayer().getName())));
-            } else {
-                event.quitMessage(Component.text(getQuit()));
-            }
-        }
+    public TextComponent formatMessage(MessageType type, Player player, String message) {
+        String formatted = switch (type){
+            case GLOBAL -> Config.settings.getString("global-format");
+            case LOCAL -> Config.settings.getString("local-format");
+            case OTHER -> message;
+        };
+
+        if (Chatullo.papi)
+            return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
+        else
+            return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
+    }
+
+    public TextComponent formatMessage(String message) {
+        return LEGACY.deserialize(message);
+    }
+
+    private static int square(int input){
+        return input*input;
     }
 }

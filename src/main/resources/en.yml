@@ -1,0 +1,15 @@
+# Write a message that will be displayed when a player joins or leaves.
+# Write %player% instead of the player's name.
+join: "&6%player% &ejoined the server."
+quit: "&6%player% &eleft the server."
+
+actionbar: "&eYou were mentioned in the chat."
+
+reloaded: "&eConfiguration reloaded."
+
+# Error messages
+error:
+  item: "&cTo use global chat, you need to be holding &7%amount% &cof redstone."
+  vault: "&cTo use global chat, you need &7%amount% &cof money."
+  args: "&cInvalid arguments."
+  permission: "&cInsufficient permissions."
