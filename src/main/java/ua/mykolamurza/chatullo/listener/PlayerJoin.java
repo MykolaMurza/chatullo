@@ -23,6 +23,8 @@ public class PlayerJoin implements Listener {
             } else {
                 event.joinMessage(chatHandler.formatMessage(MessageType.OTHER, event.getPlayer(), message));
             }
+        } else {
+            event.joinMessage(null);
         }
 
         if (Config.settings.getBoolean("mentions.enabled")) {

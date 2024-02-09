@@ -23,6 +23,8 @@ public class PlayerQuit implements Listener {
             } else {
                 event.quitMessage(chatHandler.formatMessage(MessageType.OTHER, event.getPlayer(), message));
             }
+        } else {
+            event.quitMessage(null);
         }
 
         if (Config.settings.getBoolean("mentions.enabled")) {
