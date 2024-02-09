@@ -10,10 +10,12 @@ import java.util.List;
 
 public class TabComplete implements TabCompleter {
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        if (sender.isOp() || sender.hasPermission("chatullo.reload"))
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+                                                @NotNull String s, @NotNull String[] strings) {
+        if (sender.isOp() || sender.hasPermission("chatullo.reload")) {
             return List.of("reload");
-        else
+        } else {
             return List.of();
+        }
     }
 }

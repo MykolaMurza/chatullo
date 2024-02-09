@@ -1,4 +1,4 @@
-package ua.mykolamurza.chatullo.listeners;
+package ua.mykolamurza.chatullo.listener;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,8 +8,7 @@ import ua.mykolamurza.chatullo.handler.ChatHandler;
 import ua.mykolamurza.chatullo.handler.MessageType;
 
 public class PlayerJoin implements Listener {
-
-    ChatHandler chatHandler;
+    private final ChatHandler chatHandler;
 
     public PlayerJoin(ChatHandler chatHandler) {
         this.chatHandler = chatHandler;
@@ -19,15 +18,15 @@ public class PlayerJoin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (Config.settings.getBoolean("join")) {
             String message = Config.messages.getString("join");
-            if (message == null || message.isBlank())
+            if (message == null || message.isBlank()) {
                 event.joinMessage(null);
-            else
+            } else {
                 event.joinMessage(chatHandler.formatMessage(MessageType.OTHER, event.getPlayer(), message));
+            }
         }
 
         if (Config.settings.getBoolean("mentions.enabled")) {
             ChatHandler.getInstance().updateTree();
         }
     }
-
 }

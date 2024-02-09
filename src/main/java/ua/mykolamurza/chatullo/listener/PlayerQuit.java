@@ -1,4 +1,4 @@
-package ua.mykolamurza.chatullo.listeners;
+package ua.mykolamurza.chatullo.listener;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,8 +8,7 @@ import ua.mykolamurza.chatullo.handler.ChatHandler;
 import ua.mykolamurza.chatullo.handler.MessageType;
 
 public class PlayerQuit implements Listener {
-
-    ChatHandler chatHandler;
+    private final ChatHandler chatHandler;
 
     public PlayerQuit(ChatHandler chatHandler) {
         this.chatHandler = chatHandler;
@@ -19,15 +18,15 @@ public class PlayerQuit implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (Config.settings.getBoolean("quit")) {
             String message = Config.messages.getString("quit");
-            if (message == null || message.isBlank())
+            if (message == null || message.isBlank()) {
                 event.quitMessage(null);
-            else
+            } else {
                 event.quitMessage(chatHandler.formatMessage(MessageType.OTHER, event.getPlayer(), message));
+            }
         }
 
         if (Config.settings.getBoolean("mentions.enabled")) {
             ChatHandler.getInstance().updateTree();
         }
     }
-
 }

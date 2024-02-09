@@ -8,9 +8,11 @@ import ua.mykolamurza.chatullo.command.Command;
 import ua.mykolamurza.chatullo.command.TabComplete;
 import ua.mykolamurza.chatullo.configuration.Config;
 import ua.mykolamurza.chatullo.handler.ChatHandler;
-import ua.mykolamurza.chatullo.listeners.PlayerChat;
-import ua.mykolamurza.chatullo.listeners.PlayerJoin;
-import ua.mykolamurza.chatullo.listeners.PlayerQuit;
+import ua.mykolamurza.chatullo.listener.PlayerChat;
+import ua.mykolamurza.chatullo.listener.PlayerJoin;
+import ua.mykolamurza.chatullo.listener.PlayerQuit;
+
+import java.util.Objects;
 
 /**
  * Local and global chat system. Pay to write to the server.
@@ -19,7 +21,6 @@ import ua.mykolamurza.chatullo.listeners.PlayerQuit;
  * @version Minecraft 1.20.1
  */
 public final class Chatullo extends JavaPlugin {
-
     public static JavaPlugin plugin = null;
     public static boolean papi = false;
     private static Economy econ = null;
@@ -34,12 +35,14 @@ public final class Chatullo extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerChat(ChatHandler.getInstance(), econ), this);
         getServer().getPluginManager().registerEvents(new PlayerJoin(ChatHandler.getInstance()), this);
         getServer().getPluginManager().registerEvents(new PlayerQuit(ChatHandler.getInstance()), this);
-        getCommand("chatullo").setExecutor(new Command(ChatHandler.getInstance()));
-        getCommand("chatullo").setTabCompleter(new TabComplete());
 
-        if (!setupPAPI()){
+        Objects.requireNonNull(getCommand("chatullo")).setExecutor(new Command(ChatHandler.getInstance()));
+        Objects.requireNonNull(getCommand("chatullo")).setTabCompleter(new TabComplete());
+
+        if (!setupPAPI()) {
             getLogger().warning("PlaceholderAPI not found, functionality will be missing.");
         }
+
         if (!setupVault()) {
             getLogger().warning("Vault not found, functionality will be missing.");
         }
@@ -50,6 +53,7 @@ public final class Chatullo extends JavaPlugin {
             return false;
         }
         papi = true;
+
         return true;
     }
 
@@ -62,6 +66,7 @@ public final class Chatullo extends JavaPlugin {
             return false;
         }
         econ = rsp.getProvider();
+
         return true;
     }
 }

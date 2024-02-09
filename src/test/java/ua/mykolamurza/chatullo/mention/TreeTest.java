@@ -1,4 +1,4 @@
-package ua.mykolamurza.chatullo.mentions;
+package ua.mykolamurza.chatullo.mention;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -11,9 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TreeTest {
-
-    //List<String> data = Arrays.asList("Notch", "jeb_", "used", "useful", "usernai", "username1", "username2", "username3", "user", "mykolamurza", "justADeni", "xz");
-
     List<String> data = Arrays.asList("ShadowDragon64", "MysticCrafter", "DiamondRover", "LavaLeaper", "BlazeChaser",
             "ThunderPenguin", "FrostyFox123", "IronWanderer", "JungleWhisperer", "PixelPioneer", "AquaVortex", "EmberEagle", "GalacticNomad",
             "NetherNinjaX", "QuantumQuasar", "SkywardSamurai", "ObsidianOracle", "CreeperCommander", "StarryStitcher", "SilverStriker",
@@ -39,7 +36,7 @@ class TreeTest {
         ArrayList<Character> entrychars = new ArrayList<>();
         for (int i = 0; i <= 122; i++) {
             if (base[i] != null)
-                entrychars.add((char)i);
+                entrychars.add((char) i);
         }
         for (int j = 0; j < entrychars.size(); j++) {
             char entrychar = entrychars.get(j);
@@ -55,7 +52,7 @@ class TreeTest {
                 } else {
                     padding.append("┌──");
                 }
-            } else if (j+1 != entrychars.size()) {
+            } else if (j + 1 != entrychars.size()) {
                 padding.append("├──");
             } else {
                 padding.append("└──");
@@ -72,19 +69,19 @@ class TreeTest {
                 breadth.incrementAndGet();
                 if (branches.length > 1 && i != 0) {
                     padding.append("\n");
-                    if (j+1 < entrychars.size())
+                    if (j + 1 < entrychars.size())
                         padding.append("│");
                     else
                         padding.append(" ");
 
                     if (branches.length == 2) {
-                        additional.put(breadth.get()-1, 3);
+                        additional.put(breadth.get() - 1, 3);
                         padding.append("  └──");
                     } else if (i + 1 != branches.length) {
-                        additional.put(breadth.get()-1, 3);
+                        additional.put(breadth.get() - 1, 3);
                         padding.append("  ├──");
                     } else {
-                        additional.put(breadth.get()-1, 3);
+                        additional.put(breadth.get() - 1, 3);
                         padding.append("  └──");
                     }
                 } else {
@@ -102,10 +99,10 @@ class TreeTest {
                 //System.out.println("additional: " + additional);
                 String[] split = padding.toString().split("\n");
 
-                for (int key: additional.keySet()) {
+                for (int key : additional.keySet()) {
                     int depth = additional.get(key);
 
-                    for (int bredth = key-1; bredth >= 0; bredth--) {
+                    for (int bredth = key - 1; bredth >= 0; bredth--) {
 
                         if (bredth >= split.length)
                             continue;
@@ -145,7 +142,7 @@ class TreeTest {
                 padding.append("\n");
 
                 if (startpadding)
-                    padding.append("│").append(" ".repeat(depth-1));
+                    padding.append("│").append(" ".repeat(depth - 1));
                 else
                     padding.append(" ".repeat(depth));
 
@@ -185,7 +182,7 @@ class TreeTest {
         long end = System.nanoTime();
 
         long diff = end - start;
-        System.out.println("Cold path tree construction took " + diff/1000000 + "ms and " + diff%1000000 + "ns");
+        System.out.println("Cold path tree construction took " + diff / 1000000 + "ms and " + diff % 1000000 + "ns");
     }
 
     @Order(2)
@@ -199,7 +196,7 @@ class TreeTest {
         long end = System.nanoTime();
 
         long diff = end - start;
-        System.out.println("Hot path tree construction took " + diff/1000000 + "ms and " + diff%1000000 + "ns");
+        System.out.println("Hot path tree construction took " + diff / 1000000 + "ms and " + diff % 1000000 + "ns");
     }
 
     // Generated with ChatGPT
@@ -247,7 +244,6 @@ class TreeTest {
     @Order(5)
     @Test
     void matchcold() {
-
         HashSet<String> set = new HashSet<>(data);
 
         long splitlistspeed = 0L;
@@ -256,11 +252,9 @@ class TreeTest {
         long firsttreespeed = 0L;
         long manytreespeed = 0L;
 
-        List<String> list = new ArrayList<>(10);
+        List<String> list = new ArrayList<>();
 
-        for (int i = 0; i < messages.length; i++) {
-            String message = messages[i];
-
+        for (String message : messages) {
             long startsplit = System.nanoTime();
             final String[] split = message.split(" ");
             long endsplit = System.nanoTime();
@@ -302,7 +296,7 @@ class TreeTest {
 
             int last = 0;
             String left = message;
-            while ((short)(found) != 0){
+            while ((short) (found) != 0) {
                 left = left.substring(last);
                 if (left.length() < 3)
                     break;
@@ -311,7 +305,7 @@ class TreeTest {
                 if (found == 0)
                     break;
 
-                last = (short)(found >> 16) + (short)found;
+                last = (short) (found >> 16) + (short) found;
             }
             long end3 = System.nanoTime();
             firsttreespeed += end3 - start3;
@@ -322,13 +316,13 @@ class TreeTest {
             manytreespeed += end5 - start5;
         }
 
-        System.out.println("list split took " + splitlistspeed/1000000 + "ms and " + splitlistspeed%1000000 + "ns");
-        System.out.println("set  split took " + splitsetspeed/1000000 + "ms and " + splitsetspeed%1000000 + "ns");
-        System.out.println("tree split took " + splittreespeed/1000000 + "ms and " + splittreespeed%1000000 + "ns");
+        System.out.println("list split took " + splitlistspeed / 1000000 + "ms and " + splitlistspeed % 1000000 + "ns");
+        System.out.println("set  split took " + splitsetspeed / 1000000 + "ms and " + splitsetspeed % 1000000 + "ns");
+        System.out.println("tree split took " + splittreespeed / 1000000 + "ms and " + splittreespeed % 1000000 + "ns");
 
         // These two also have the speed nerf of finding much more stuff
-        System.out.println("tree first took " + firsttreespeed/1000000 + "ms and " + firsttreespeed%1000000 + "ns");
-        System.out.println("tree many  took " + manytreespeed/1000000 + "ms and " + manytreespeed%1000000 + "ns");
+        System.out.println("tree first took " + firsttreespeed / 1000000 + "ms and " + firsttreespeed % 1000000 + "ns");
+        System.out.println("tree many  took " + manytreespeed / 1000000 + "ms and " + manytreespeed % 1000000 + "ns");
     }
 
 }

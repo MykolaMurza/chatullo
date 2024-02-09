@@ -12,7 +12,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ua.mykolamurza.chatullo.Chatullo;
 import ua.mykolamurza.chatullo.configuration.Config;
-import ua.mykolamurza.chatullo.mentions.AsciiTree;
+import ua.mykolamurza.chatullo.mention.AsciiTree;
 
 import java.util.List;
 
@@ -21,10 +21,12 @@ import java.util.List;
  * @author justADeni
  */
 public class ChatHandler {
-
-    private ChatHandler(){}
-
     private static ChatHandler instance = null;
+    private final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+    private AsciiTree tree = null;
+
+    private ChatHandler() {
+    }
 
     public static ChatHandler getInstance() {
         if (instance == null) {
@@ -33,8 +35,9 @@ public class ChatHandler {
         return instance;
     }
 
-    private final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
-    private AsciiTree tree = null;
+    private static int square(int input) {
+        return input * input;
+    }
 
     public void updateTree() {
         tree = new AsciiTree(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
@@ -59,14 +62,17 @@ public class ChatHandler {
     }
 
     private String formatMentions(Player player, Audience recipient, String message) {
-        if (recipient instanceof ConsoleCommandSender)
+        if (recipient instanceof ConsoleCommandSender) {
             return message;
+        }
 
-        if (recipient == player)
+        if (recipient == player) {
             return message;
+        }
 
-        if (!Config.settings.getBoolean("mentions.enabled"))
+        if (!Config.settings.getBoolean("mentions.enabled")) {
             return message;
+        }
 
         String formatted = message;
         int additional = 0;
@@ -77,15 +83,17 @@ public class ChatHandler {
                 int end = start + (short) (index);
                 String word = formatted.substring(start, end);
 
-                if (word.equals(player.getName()))
+                if (word.equals(player.getName())) {
                     continue;
+                }
 
-                if (!word.equals(((Player) recipient).getName()))
+                if (!word.equals(((Player) recipient).getName())) {
                     continue;
+                }
 
                 if (Config.settings.getBoolean("mentions.highlight.enabled")) {
                     String replaced = Config.settings.getString("mentions.highlight.format").replace("%player%", word);
-                    String intermediate = formatted.substring(0,start) + replaced + formatted.substring(end);
+                    String intermediate = formatted.substring(0, start) + replaced + formatted.substring(end);
 
                     // We have to account for the fact that formatting shifts indexes around
                     additional += intermediate.length() - formatted.length();
@@ -110,23 +118,20 @@ public class ChatHandler {
     }
 
     public TextComponent formatMessage(MessageType type, Player player, String message) {
-        String formatted = switch (type){
+        String formatted = switch (type) {
             case GLOBAL -> Config.settings.getString("global-format");
             case LOCAL -> Config.settings.getString("local-format");
             case OTHER -> message;
         };
 
-        if (Chatullo.papi)
+        if (Chatullo.papi) {
             return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
-        else
+        } else {
             return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
+        }
     }
 
     public TextComponent formatMessage(String message) {
         return LEGACY.deserialize(message);
-    }
-
-    private static int square(int input){
-        return input*input;
     }
 }

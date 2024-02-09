@@ -1,4 +1,4 @@
-package ua.mykolamurza.chatullo.mentions;
+package ua.mykolamurza.chatullo.mention;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -6,31 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AsciiTree {
+    // When no player IGN starts with said char (corresponding to index), it's null
+    private Branch[][] base = new Branch[123][];
 
     public AsciiTree(List<String> input) {
         construct(input);
     }
 
-    // When no player IGN starts with said char (corresponding to index), it's null
-    private Branch[][] base = new Branch[123][];
-
     private void construct(List<String> strings) {
         Branch[][] newbase = new Branch[123][];
-        for (String string: strings) {
+        for (String string : strings) {
             if (string.isEmpty())
                 continue;
 
             char c = string.charAt(0);
             if (newbase[c] == null) {
                 String left = string.substring(1);
-                Branch current = new Branch((char)0,null);
+                Branch current = new Branch((char) 0, null);
                 newbase[c] = new Branch[]{current};
                 while (!left.isEmpty()) {
                     current.c = left.charAt(0);
                     if (left.length() < 2)
                         break;
 
-                    Branch next = new Branch((char)0, null);
+                    Branch next = new Branch((char) 0, null);
                     current.sub = new Branch[]{next};
                     current = next;
                     left = left.substring(1);
@@ -45,7 +44,7 @@ public class AsciiTree {
                 char t = left.charAt(0);
                 Branch previous = null;
                 // Find first branch stemming from first char
-                for (Branch branch: trunk) {
+                for (Branch branch : trunk) {
                     if (branch.c == t) {
                         previous = branch;
                         left = left.substring(1);
@@ -61,7 +60,7 @@ public class AsciiTree {
                             break;
 
                         boolean found = false;
-                        for (Branch branch: previous.sub) {
+                        for (Branch branch : previous.sub) {
                             if (branch.c == t) {
                                 found = true;
                                 previous = branch;
@@ -84,7 +83,7 @@ public class AsciiTree {
 
                 // Branched off right at the trunk
                 if (previous == null) {
-                    previous = new Branch(t,null);
+                    previous = new Branch(t, null);
                     Branch[] branches = newbase[c];
                     Branch[] augmented = new Branch[branches.length + 1];
                     System.arraycopy(branches, 0, augmented, 0, branches.length);
@@ -95,7 +94,7 @@ public class AsciiTree {
                 }
 
                 Branch next = new Branch(t, null);
-                if (previous.sub == null){
+                if (previous.sub == null) {
                     previous.sub = new Branch[]{next};
                 } else {
                     Branch[] augmented = new Branch[previous.sub.length + 1];
@@ -121,6 +120,7 @@ public class AsciiTree {
 
     /**
      * Returns whether message contains any of the strings.
+     *
      * @param message Input message to search through.
      * @return Returns true if found a match, false if not.
      */
@@ -128,15 +128,15 @@ public class AsciiTree {
         Branch[] current = null;
         for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
-            if (c > 122){
+            if (c > 122) {
                 current = null;
                 continue;
             }
-            if (current == null){
+            if (current == null) {
                 if (base[c] != null)
                     current = base[c];
             } else {
-                for (Branch branch: current) {
+                for (Branch branch : current) {
                     if (branch.c == c) {
                         if (branch.isEnd)
                             return true;
@@ -153,6 +153,7 @@ public class AsciiTree {
 
     /**
      * Returns whether message equals any of the strings.
+     *
      * @param message Input message to search through.
      * @return Returns true if found a match, false if not.
      */
@@ -160,11 +161,11 @@ public class AsciiTree {
         Branch[] current = null;
         for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
-            if (c > 122){
+            if (c > 122) {
                 current = null;
                 continue;
             }
-            if (current == null){
+            if (current == null) {
                 if (j > 0)
                     return false;
 
@@ -172,9 +173,9 @@ public class AsciiTree {
                     current = base[c];
             } else {
                 boolean found = false;
-                for (Branch branch: current) {
+                for (Branch branch : current) {
                     if (branch.c == c) {
-                        if (branch.isEnd && j == message.length()-1)
+                        if (branch.isEnd && j == message.length() - 1)
                             return true;
 
                         current = branch.sub;
@@ -191,6 +192,7 @@ public class AsciiTree {
 
     /**
      * Returns start and end index of the found strings in the message.
+     *
      * @param message Input message to search through.
      * @return List of long containing start indexes and lengths.
      */
@@ -204,12 +206,12 @@ public class AsciiTree {
 
         for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
-            if (c > 122){
+            if (c > 122) {
                 current = null;
                 length = 0;
                 continue;
             }
-            if (current == null){
+            if (current == null) {
                 if (base[c] != null) {
                     current = base[c];
                     length = 1;
@@ -217,7 +219,7 @@ public class AsciiTree {
                 }
             } else {
                 boolean success = false;
-                for (Branch branch: current) {
+                for (Branch branch : current) {
                     if (branch.c == c) {
                         success = true;
                         length++;
@@ -227,12 +229,12 @@ public class AsciiTree {
                                 // In case we matched a shorter word inside a longer word previously, but the longer word matches
                                 // i.e. we matched 'exam' in 'example' but now we are matching 'example' so we should replace the previous match
                                 int previous = foundsofar.get(found - 1);
-                                if ((previous >> 16) == start && ((short)previous) < length) {
+                                if ((previous >> 16) == start && ((short) previous) < length) {
                                     foundsofar.set(found - 1, (start << 16) | (length) & 0xFFFF);
                                     break;
                                 }
                             }
-                            foundsofar.add(((int) start << 16) | (length & 0xFFFF));
+                            foundsofar.add((start << 16) | (length & 0xFFFF));
                             found++;
                         }
                         break;
@@ -247,6 +249,7 @@ public class AsciiTree {
 
     /**
      * Returns start index and length index of the first found string in the message or null if not found.
+     *
      * @param message Input message to search through.
      * @return long containing start index and length or 0 if not found.
      */
@@ -255,15 +258,15 @@ public class AsciiTree {
         int start = 0;
         int length = 0;
 
-        for (int j = 0; j < /*messagesize*/message.length(); j++) {
+        for (int j = 0; j < message.length(); j++) {
             char c = message.charAt(j);
-            if (c > 122){
+            if (c > 122) {
                 current = null;
                 start = 0;
                 length = 0;
                 continue;
             }
-            if (current == null){
+            if (current == null) {
                 if (base[c] != null) {
                     current = base[c];
                     start = j;
@@ -271,13 +274,13 @@ public class AsciiTree {
                 }
             } else {
                 boolean found = false;
-                for (Branch branch: current) {
+                for (Branch branch : current) {
                     if (branch.c == c) {
                         found = true;
                         length++;
                         current = branch.sub;
                         if (branch.isEnd) {
-                            return ((int) start << 16) | (length & 0xFFFF);
+                            return (start << 16) | (length & 0xFFFF);
                         }
                         break;
                     }
@@ -291,5 +294,4 @@ public class AsciiTree {
         }
         return 0;
     }
-
 }
