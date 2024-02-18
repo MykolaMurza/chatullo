@@ -18,7 +18,7 @@ import java.util.Objects;
  * Local and global chat system. Pay to write to the server.
  *
  * @author Mykola Murza
- * @version Minecraft 1.20.1
+ * @version Minecraft 1.20
  */
 public final class Chatullo extends JavaPlugin {
     public static JavaPlugin plugin = null;
@@ -29,7 +29,6 @@ public final class Chatullo extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
-        //Bukkit.getLogger().info("Start Chatullo.");
         saveDefaultConfig();
         Config.initialize();
         getServer().getPluginManager().registerEvents(new PlayerChat(ChatHandler.getInstance(), econ), this);

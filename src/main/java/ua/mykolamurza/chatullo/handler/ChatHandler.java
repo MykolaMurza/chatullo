@@ -56,9 +56,29 @@ public class ChatHandler {
                         recipient.sendMessage(formatMessage(MessageType.LOCAL, player, formatMentions(player, recipient, message))));
     }
 
-    private boolean isPlayerHearLocalChat(Player player, Player viewerPlayer) {
-        return viewerPlayer.getWorld().equals(player.getWorld())
-                && viewerPlayer.getLocation().distanceSquared(player.getLocation()) <= square(Config.settings.getInt("radius"));
+    public TextComponent formatMessage(MessageType type, Player player, String message) {
+        String formatted = switch (type) {
+            case GLOBAL -> Config.settings.getString("global-format");
+            case LOCAL -> Config.settings.getString("local-format");
+            case OTHER -> message;
+        };
+
+        if (Chatullo.papi) {
+            return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player,
+                    formatted.replace("%player%", player.getName()).replace("%message%", message)));
+        } else {
+            return LEGACY.deserialize(
+                    formatted.replace("%player%", player.getName()).replace("%message%", message));
+        }
+    }
+
+    public TextComponent formatMessage(String message) {
+        return LEGACY.deserialize(message);
+    }
+
+    private boolean isPlayerHearLocalChat(Player player, Player viewer) {
+        return viewer.getWorld().equals(player.getWorld()) &&
+                viewer.getLocation().distanceSquared(player.getLocation()) <= square(Config.settings.getInt("radius"));
     }
 
     private String formatMentions(Player player, Audience recipient, String message) {
@@ -115,23 +135,5 @@ public class ChatHandler {
         }
 
         return formatted;
-    }
-
-    public TextComponent formatMessage(MessageType type, Player player, String message) {
-        String formatted = switch (type) {
-            case GLOBAL -> Config.settings.getString("global-format");
-            case LOCAL -> Config.settings.getString("local-format");
-            case OTHER -> message;
-        };
-
-        if (Chatullo.papi) {
-            return LEGACY.deserialize(PlaceholderAPI.setPlaceholders(player, formatted.replace("%player%", player.getName()).replace("%message%", message)));
-        } else {
-            return LEGACY.deserialize(formatted.replace("%player%", player.getName()).replace("%message%", message));
-        }
-    }
-
-    public TextComponent formatMessage(String message) {
-        return LEGACY.deserialize(message);
     }
 }
